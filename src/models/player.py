@@ -20,7 +20,10 @@ class Player:
         self.score = 0
 
         self.speed = 1
-        self.invincible = False
+
+    def set_direction(self, direction: str) -> None:
+        """Set the wanted movement direction."""
+        self.direction = direction
 
     def move(self, x: int, y: int) -> None:
         """Move the player to a new position."""
@@ -51,6 +54,6 @@ class Player:
         self.y = self.start_y
         self.direction = "RIGHT"
 
-    def is_game_over(self) -> bool:
+    def is_alive(self) -> bool:
         """Check if the player has no lives left."""
-        return self.lives <= 0
+        return self.state == "ALIVE"
