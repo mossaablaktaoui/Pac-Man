@@ -5,6 +5,10 @@ build/
 dist/
 wheels/
 *.egg-info
+.mypy_cache
 
 # Virtual environments
 .venv
+
+PLAN.md
+mazegenerator-00001-py3-none-any.whl
