@@ -12,33 +12,24 @@ class Player:
         self.start_y = y
 
         self.direction = "RIGHT"
-        self.next_direction = "RIGHT"
 
         self.state = "ALIVE"
 
+        self.initial_lives = lives
         self.lives = lives
         self.score = 0
 
         self.speed = 1
         self.invincible = False
 
-    def set_direction(self, direction: str) -> None:
-        """Set the wanted movement direction."""
-        direction = direction.upper()
-
-        if direction in self.VALID_DIRECTIONS:
-            self.next_direction = direction
-
     def move(self, x: int, y: int) -> None:
         """Move the player to a new position."""
         self.x = x
         self.y = y
-        self.direction = self.next_direction
 
     def add_score(self, points: int) -> None:
         """Add points to the player's score."""
-        if points > 0:
-            self.score += points
+        self.score += points
 
     def lose_life(self) -> None:
         """Remove one life from the player."""
@@ -59,7 +50,6 @@ class Player:
         self.x = self.start_x
         self.y = self.start_y
         self.direction = "RIGHT"
-        self.next_direction = "NONE"
 
     def is_game_over(self) -> bool:
         """Check if the player has no lives left."""
