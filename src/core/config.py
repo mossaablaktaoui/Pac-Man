@@ -1,26 +1,32 @@
 import json
 from typing import Any
 from pathlib import Path
+import sys
 
 
 class ConfigError(Exception):
     pass
 
 
-class ConfigParser:
-    DEFAULTS = {
-        "highscore_filename": "highscores.json",
-        "lives": 3,
-        "pacgum": 42,
-        "points_per_pacgum": 10,
-        "points_per_super_pacgum": 50,
-        "points_per_ghost": 200,
-        "seed": 42,
-        "level_max_time": 120,
-    }
+class Config:
+    def __init__(self) -> None:
+        self.filename = self.parse_args()
 
-    def __init__(self, filename: str) -> None:
-        self.filename = Path(filename)
+        self.highscore_filename = "highscores.json"
+        self.lives = 3
+        self.pacgum = 42
+        self.points_per_pacgum = 120
+        self.points_per_super_pacgum = 50
+        self.points_per_ghost = 200
+        self.seed = 42
+        self.level_max_time = 120
+
+    def parse_args(self):
+        args = sys.argv[1:]
+        if len(args) > 1:
+            raise ConfigError("Error: Too many arguments provided. "
+                              "Expected exactly 1 argument (config file).")
+        return Path(args[0])
 
     def read_file(self) -> str:
         """Read config file."""
@@ -85,7 +91,7 @@ class ConfigParser:
             if isinstance(value, int) and value >= 0:
                 result[key] = value
 
-        return result
+
 
     def create_config(self):
         with open("config.json", "w") as json_file:
@@ -96,4 +102,4 @@ class ConfigParser:
         content = self.read_file()
         content = self.remove_comments(content)
         config = self.parse_json(content)
-        return self.validate(config)
+        self.validate(config)
