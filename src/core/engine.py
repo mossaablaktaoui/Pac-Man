@@ -16,22 +16,22 @@ class GameEngine:
         self.gamestate.level = 1
         self.gamestate.level = 1
         self.gamestate.level = 1
-
-    level: int
-    score: int
-    lives: int
-    time_remaining: float
-    is_paused: bool
-    is_game_over: bool
-    is_victory: bool
-    is_level_cleared: bool
-    pacman: SpriteDT
-    ghosts: List[SpriteDT]
-    pacgums: List[PacgumDT]
-    grid_width: int
-    grid_height: int
-    active_cheats: List[str]
-
+    #
+    # level: int
+    # score: int
+    # lives: int
+    # time_remaining: float
+    # is_paused: bool
+    # is_game_over: bool
+    # is_victory: bool
+    # is_level_cleared: bool
+    # pacman: SpriteDT
+    # ghosts: List[SpriteDT]
+    # pacgums: List[PacgumDT]
+    # grid_width: int
+    # grid_height: int
+    # active_cheats: List[str]
+    #
     def start_new_game(self) -> None:
         """Reset scores, lives, level count, and spawn entities."""
         pass
