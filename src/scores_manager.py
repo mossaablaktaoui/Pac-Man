@@ -1,6 +1,8 @@
 import json
 from typing import Any
 
+class HighscoreManagerError(Exception):
+    pass
 
 class HighscoreManager:
     def __init__(self, filename: str) -> None:
@@ -17,7 +19,8 @@ class HighscoreManager:
                 self.scores = data
 
         except (OSError, json.JSONDecodeError):
-            self.scores = []
+            raise HighscoreManagerError("High scores file doesn't"
+                                        " fit a JSON list object")
 
     def validate_name(self, name: str) -> bool:
         """Check player name."""
@@ -28,10 +31,10 @@ class HighscoreManager:
     def add_score(self, name: str, score: int) -> bool:
         """Add a new score."""
         if not self.validate_name(name):
-            return False
+            raise HighscoreManagerError("the name is not valid")
 
         if score < 0:
-            return False
+            raise HighscoreManagerError("the score is not valid")
 
         self.scores.append(
             {
