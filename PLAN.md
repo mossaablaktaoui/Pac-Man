@@ -501,4 +501,4 @@ mock_state = GameStateDTO(
 4. **Refactor Main Loop in `src/renderer.py`:**
    - Replace fullscreen with a 1280x720 window; centralize `clock.tick(60)` and `pygame.display.flip()`.
 5. **Initialize Project Management Folder:**
-   - Create `docs/KANBAN.md` and `docs/TIMELINE.md` to satisfy Chapter VIII.
+
