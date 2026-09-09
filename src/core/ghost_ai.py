@@ -41,4 +41,3 @@ class Ghost:
         self.direction = "RIGHT"
         self.state = "NORMAL"
         self.respawn_timer = 0.0
-

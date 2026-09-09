@@ -1,8 +1,10 @@
 import json
 from typing import Any
 
+
 class HighscoreManagerError(Exception):
     pass
+
 
 class HighscoreManager:
     def __init__(self, filename: str) -> None:
@@ -43,8 +45,8 @@ class HighscoreManager:
             }
         )
 
-        self.scores.sort( key=lambda item: item["score"],
-                          reverse=True)
+        self.scores.sort(key=lambda item: item["score"],
+                         reverse=True)
 
         self.scores = self.scores[:10]
         return True

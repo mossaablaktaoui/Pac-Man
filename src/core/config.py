@@ -91,7 +91,6 @@ class ConfigParser:
         with open("config.json", "w") as json_file:
             json.dump(self.DEFAULTS, json_file, indent=4)
 
-
     def load(self) -> dict[str, Any]:
         """Run the complete parsing process."""
         content = self.read_file()
