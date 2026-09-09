@@ -1,13 +1,30 @@
-from maze_adapter import MazeAdapter
-from config import Config
-from entities import GameStateDT
+from typing import List
+
+from src.core.maze_adapter import MazeAdapter
+from src.core.config import Config
+from src.core.entities import GameStateDT, Direction
 
 
 class GameEngine:
     def __init__(self):
-        self.maze = MazeAdapter()
+        self.maze = MazeAdapter(42)
         self.config = Config()
-        self.gamestate = GameStateDT()
+        self.gamestate = GameStateDT(
+            level=1,
+            score=0,
+            lives=3,
+            time_remaining=300,
+            is_paused=False,
+            is_game_over=False,
+            is_victory=False,
+            is_level_cleared=False,
+            pacman=None,
+            ghosts=[],
+            pacgums=[],
+            grid_width=20,
+            grid_height=20,
+            active_cheats=[]
+        )
 
     def setup_game_state(self):
         self.gamestate.level = 1
@@ -31,7 +48,7 @@ class GameEngine:
     # grid_width: int
     # grid_height: int
     # active_cheats: List[str]
-    #
+
     def start_new_game(self) -> None:
         """Reset scores, lives, level count, and spawn entities."""
         pass
@@ -49,7 +66,8 @@ class GameEngine:
         pass
 
     def trigger_cheat(self, cheat_code: str) -> None:
-        """Toggle cheat features: 'INVINCIBILITY', 'SKIP_LEVEL', 'FREEZE_GHOSTS', 'ADD_LIFE', 'SPEED'."""
+        """Toggle cheat features: 'INVINCIBILITY', 'SKIP_LEVEL',
+        'FREEZE_GHOSTS', 'ADD_LIFE', 'SPEED'."""
         pass
 
     def get_state(self) -> GameStateDT:

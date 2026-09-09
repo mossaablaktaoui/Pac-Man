@@ -7,12 +7,16 @@ MARGIN = 7
 
 
 class MazeRenderer:
-    def __init__(self):
-        self.engine = GameEngine()
+    def __init__(self, engine: GameEngine):
+        self.engine = engine
         self.grid = self.engine.get_wall_matrix()
-        self.maze_size = (len(self.grid[0]), len(self.grid))
+        self.maze_size = (
+            len(self.grid[0]) * TILE_SIZE + 2 * MARGIN,
+            len(self.grid) * TILE_SIZE + 2 * MARGIN
+            )
 
         self.maze_surface = pygame.Surface(self.maze_size, pygame.SRCALPHA)
+        self._render_maze()
 
     def grid_to_pixel(self, col: int, row: int) -> tuple[int, int]:
         """Convert maze grid (col, row) to center pixel coordinates."""
@@ -73,10 +77,17 @@ class MazeRenderer:
             pygame.draw.line(surface, wall_color, start, end, thickness)
             pygame.draw.line(surface, (130, 200, 255), start, end, 2)
 
-    def draw(self):
+    def _render_maze(self) -> None:
+        """Draw all walls onto the cached surface one time."""
         self.maze_surface.fill((20, 40, 180, 80))
-        for row in enumerate(self.grid):
-            for col in enumerate(row):
-                px = col * TILE_SIZE + MARGIN
-                py = row * TILE_SIZE + MARGIN
-                self._draw_cell(self.grid[row][col], px, py, TILE_SIZE)
+        for row_idx, row in enumerate(self.grid):
+            for col_idx, cell_value in enumerate(row):
+                px = col_idx * TILE_SIZE + MARGIN
+                py = row_idx * TILE_SIZE + MARGIN
+                self._draw_cell(cell_value, px, py, TILE_SIZE)
+        return self.maze_surface
+
+    def draw(self) -> pygame.Surface:
+        """Instantly return the pre-rendered surface
+        (runs at 60 FPS without lag)."""
+        return self.maze_surface

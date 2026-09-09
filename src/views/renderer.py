@@ -1,35 +1,65 @@
+import sys
 import pygame
 
-from src.views.maze_view import MazeRenderer
+from src.core.engine import GameEngine
+from src.views.screens.game_screen import InGame
 
 IMAGES = "assets/images"
 
 
 class Renderer:
     def __init__(self,
-                 screen_width: int = 1920,
-                 screen_height: int = 1080):
+                 screen_width: int | None = None,
+                 screen_height: int | None = None):
         pygame.init()
         pygame.mixer.init()
-        pygame.mouse.set_visible(False)
         self.clock = pygame.time.Clock()
+        self.engine = GameEngine()
+        self.running = True
 
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        # Windowed mode to prevent OS display crashes
+        monitor_sizes = pygame.display.get_desktop_sizes()
+        self.screen_width = (screen_width
+                             if screen_width else monitor_sizes[0][0])
+        self.screen_height = (screen_height
+                              if screen_height else monitor_sizes[0][1])
+        self.screen = pygame.display.set_mode(
+            (self.screen_width, self.screen_height)
+        )
+        pygame.display.set_caption("Pac-Man")
+
+        # Load and scale background to current window dimensions
         self.background = pygame.image.load(
-            f"{IMAGES}/backgrounds/general_background.jpg")
-        self.background = pygame.transform.scale(self.background, (1920, 1080))
+            f"{IMAGES}/backgrounds/general_background.jpg"
+        ).convert()
+        self.background = pygame.transform.scale(
+            self.background, (self.screen_width, self.screen_height)
+        )
 
-        self.maze = MazeRenderer()
-        self.maze_surface = self.maze.draw()
+        self.ingame = InGame(self.screen, self.engine)
 
-    def run(self):
-        while True:
+    def run(self) -> None:
+        while self.running:
+            # 1. Event pump (mandatory to prevent window freeze)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.running = False
+
+            # 2. Rendering
             self.screen.blit(self.background, (0, 0))
-            self.screen.blit(self.maze_surface, (100, 100))
+            self.ingame.run()
 
+            # 3. Display update & frame-rate cap
             pygame.display.flip()
             self.clock.tick(60)
 
+        pygame.quit()
+        sys.exit(0)
+
 
 if __name__ == "__main__":
-    maze = Renderer()
+    renderer = Renderer()
+    renderer.run()
