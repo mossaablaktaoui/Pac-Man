@@ -1,12 +1,13 @@
-from src.player import Player
+from src.models.player import Player
 
 import pygame
 
 
 class PacMan(pygame.sprite.Sprite, Player):
-    def __init__(self, pos_x, pos_y):
+    def __init__(self, pos_x: int, pos_y: int, size: int = 30):
         pygame.sprite.Sprite.__init__(self)
         Player.__init__(self, pos_x, pos_y)
+        self.size = size
         self.sprites = []
         self._image_cache = {}
 
@@ -42,7 +43,7 @@ class PacMan(pygame.sprite.Sprite, Player):
         for asset in self.assets:
             if asset not in self._image_cache:
                 image = pygame.image.load(asset)
-                image = pygame.transform.scale(image, (50, 50))
+                image = pygame.transform.scale(image, (self.size, self.size))
                 self._image_cache[asset] = image
             self.sprites.append(self._image_cache[asset])
 

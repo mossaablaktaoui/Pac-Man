@@ -1,7 +1,7 @@
 import pygame
 
 
-class PacGum(pygame.sprite.Sprite):
+class Ghost(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__()
         self.sprites = []

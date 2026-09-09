@@ -1,30 +1,29 @@
 import sys
 import pygame
+from typing import Tuple
 
-from src.maze import MazeAdapter
+from src.sprites.pacman import PacMan
+# from src.sprites.ghost import Ghost
+# from src.sprites.pacgum import Pacgum
 
 IMAGES = "assets/images"
-TILE_SIZE = 40
-MAZE_SIZE = 20
-MARGIN = 7
 X_OFFSET = 560
 Y_OFFSET = 140
 
 
 class InGame:
-    def __init__(self,
-                 screen_width: int = 1920,
-                 screen_height: int = 1080
-                 ) -> None:
+    def __init__(self) -> None:
 
-        self.screen = pygame.display.set_mode(
-            (screen_width, screen_height), pygame.FULLSCREEN)
+        self.font = pygame.font.Font("assets/fonts/pacfont.ttf", 14)
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.background = pygame.image.load(
             f"{IMAGES}/backgrounds/general_background.jpg")
         self.background = pygame.transform.scale(self.background, (1920, 1080))
 
+        self.spritesgroup = pygame.sprite.Group()
         self.scoreboard = pygame.image.load(f"{IMAGES}/boards/scoreboard.png")
         self.scoreboard = pygame.transform.scale_by(self.scoreboard, 0.5)
+        self.sb_rect = self.scoreboard.get_rect()
         self.levelboard = pygame.image.load(f"{IMAGES}/boards/levelboard.png")
         self.levelboard = pygame.transform.scale_by(self.levelboard, 0.5)
         self.livesboard = pygame.image.load(f"{IMAGES}/boards/livesboard.png")
@@ -32,74 +31,26 @@ class InGame:
         self.timerboard = pygame.image.load(f"{IMAGES}/boards/timerboard.png")
         self.timerboard = pygame.transform.scale_by(self.timerboard, 0.5)
 
-        self.maze = MazeAdapter((MAZE_SIZE, MAZE_SIZE), 45)
-        maze_width = (MAZE_SIZE * TILE_SIZE) + (MARGIN * 2)
-        maze_height = (MAZE_SIZE * TILE_SIZE) + (MARGIN * 2)
-        self._maze_surface = pygame.Surface(
-            (int(maze_width), int(maze_height)), pygame.SRCALPHA)
-        self._maze_surface.fill((20, 40, 180, 80))
-        self._prepare_maze_surface()
+        # self.ghosts: List[Ghost] = []
+        # self.pacgums: List[Pacgum] = []
 
-    def _draw_cell(
-        self,
-        cell_value: int,
-        px: int,
-        py: int,
-        tile_size: int,
-        wall_color: tuple[int, int, int] = (20, 40, 180),
-        thickness: int = 5,
-    ) -> None:
-        """Draw a single maze cell on the target surface based on its bitmask.
+        self.current_level = 0
+        self.level_time = 0.0
+        self.score = 0
+        text_score = f"SCORE: {self.score}"
+        self.score_surface = self._generate_text_surface(
+            text_score, (0, 255, 255)
+        )
 
-        Args:
-            surface: The pygame Surface to draw onto.
-            cell_value: 4-bit integer bitmask (1=N, 2=E, 4=S, 8=W, 15=solid).
-            px: Top-left X coordinate in pixels.
-            py: Top-left Y coordinate in pixels.
-            tile_size: Width and height of the cell in pixels.
-            wall_color: RGB tuple for the wall color.
-            thickness: Line width in pixels.
-        """
-        surface = self._maze_surface
-        # 15 represents a solid obstacle block (e.g., the center '42')
-        if cell_value == 15:
-            rect = pygame.Rect(px, py, tile_size, tile_size)
-            pygame.draw.rect(surface, wall_color, rect)
-            return
+        start_x, start_y = self.grid_to_pixel(9, 10)
+        self.player = PacMan(start_x, start_y, size=30)
+        self.spritesgroup.add(self.player)
 
-        # North (Top)
-        if cell_value & 1:
-            start = (px, py)
-            end = (px + tile_size, py)
-            pygame.draw.line(surface, wall_color, start, end, thickness)
-            pygame.draw.line(surface, (130, 200, 255), start, end, 1)
-
-        # East (Right)
-        if cell_value & 2:
-            start = (px + tile_size, py)
-            end = (px + tile_size, py + tile_size)
-            pygame.draw.line(surface, wall_color, start, end, thickness)
-            pygame.draw.line(surface, (130, 200, 255), start, end, 2)
-
-        # South (Bottom)
-        if cell_value & 4:
-            start = (px, py + tile_size)
-            end = (px + tile_size, py + tile_size)
-            pygame.draw.line(surface, wall_color, start, end, thickness)
-            pygame.draw.line(surface, (130, 200, 255), start, end, 2)
-
-        # West (Left)
-        if cell_value & 8:
-            start = (px, py)
-            end = (px, py + tile_size)
-            pygame.draw.line(surface, wall_color, start, end, thickness)
-            pygame.draw.line(surface, (130, 200, 255), start, end, 2)
-
-    def _prepare_maze_surface(self):
-        for col, row, val in self.maze.get_cells():
-            px = col * TILE_SIZE + MARGIN
-            py = row * TILE_SIZE + MARGIN
-            self._draw_cell(val, px, py, TILE_SIZE)
+    def _generate_text_surface(
+            self, text: str,
+            color: Tuple[int, int, int]
+            ) -> pygame.surface.Surface:
+        return self.font.render(text, True, color)
 
     def run(self):
         for event in pygame.event.get():
@@ -113,4 +64,16 @@ class InGame:
         self.screen.blit(self.livesboard, (100, 200))
         self.screen.blit(self.timerboard, (100, 300))
         self.screen.blit(self.levelboard, (100, 400))
+        self.score_surface = self._generate_text_surface(
+            f"SCORE: {self.score}", (0, 255, 255)
+        )
+        self.tsb_rect = self.score_surface.get_rect()
+        self.tsb_rect.center = self.sb_rect.center
+        self.screen.blit(self.score_surface, (100, 500))
+        self.spritesgroup.update()
+        self.screen.blit(
+            self.player.image,
+            (X_OFFSET + self.player.rect.x, Y_OFFSET + self.player.rect.y),
+        )
+        self.score += 3
         pygame.display.flip()

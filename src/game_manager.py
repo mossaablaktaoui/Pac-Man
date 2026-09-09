@@ -23,8 +23,7 @@ class GameManager:
             self.current_screen = self.main_menu
         elif self.state == "INGAME":
             if self.ingame is None:
-                self.ingame = InGame(
-                    self.screen_width, self.screen_height)
+                self.ingame = InGame()
             self.current_screen = self.ingame
         elif self.state == "GAME_OVER":
             if self.game_over is None:
