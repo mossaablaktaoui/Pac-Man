@@ -1,4 +1,4 @@
-from src.player import Player
+from src.models.player import Player
 
 import pygame
 

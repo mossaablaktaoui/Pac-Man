@@ -4,7 +4,6 @@ class Pacgum:
     def __init__(self,
                  x: int,
                  y: int,
-                 points: int,
                  is_super: bool = False) -> None:
         self.x = x
         self.y = y
