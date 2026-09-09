@@ -1,5 +1,6 @@
 import json
 from typing import Any
+from pathlib import Path
 
 
 class ConfigError(Exception):
@@ -9,31 +10,36 @@ class ConfigError(Exception):
 class ConfigParser:
     DEFAULTS = {
         "highscore_filename": "highscores.json",
-        "level": [],
-        "width": 20,
-        "height": 20,
         "lives": 3,
         "pacgum": 42,
         "points_per_pacgum": 10,
         "points_per_super_pacgum": 50,
         "points_per_ghost": 200,
         "seed": 42,
-        "level_max_time": 90,
+        "level_max_time": 120,
     }
 
     def __init__(self, filename: str) -> None:
-        self.filename = filename
+        self.filename = Path(filename)
 
     def read_file(self) -> str:
         """Read config file."""
         try:
-            with open(self.filename, "r") as file:
-                return file.read()
+            if self.filename.is_file():
+                with open(self.filename, "r") as file:
+                    return file.read()
+            else:
+                self.create_config()
+                with open("config.json", "r") as file:
+                    return file.read()
+
         except Exception as error:
             raise ConfigError(f"Cannot read config file: {error}") from error
 
     def remove_comments(self, content: str) -> str:
         """Remove lines starting with #."""
+        if not content:
+            return ""
         result = []
 
         for line in content.splitlines():
@@ -63,13 +69,7 @@ class ConfigParser:
         if isinstance(filename, str) and filename:
             result["highscore_filename"] = filename
 
-        levels = config.get("level")
-        if isinstance(levels, list):
-            result["level"] = levels
-
         numeric_keys = [
-            "width",
-            "height",
             "lives",
             "pacgum",
             "points_per_pacgum",
@@ -86,6 +86,11 @@ class ConfigParser:
                 result[key] = value
 
         return result
+
+    def create_config(self):
+        with open("config.json", "w") as json_file:
+            json.dump(self.DEFAULTS, json_file, indent=4)
+
 
     def load(self) -> dict[str, Any]:
         """Run the complete parsing process."""

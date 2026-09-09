@@ -36,9 +36,6 @@ class Player:
 
     def lose_life(self) -> None:
         """Remove one life from the player."""
-        if self.invincible:
-            return
-
         if self.lives > 0:
             self.lives -= 1
 
@@ -47,7 +44,7 @@ class Player:
 
     def respawn(self) -> None:
         """Return the player to the starting position."""
-        if self.is_game_over():
+        if not self.is_alive():
             return
 
         self.x = self.start_x
