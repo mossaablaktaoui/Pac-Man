@@ -1,3 +1,8 @@
+from typing import List
+
+from src.core.entities import Direction, GameStateDT
+
+
 class IGameEngine:
     def load_config(self, config_data: dict) -> None:
         """Initialize engine settings from validated config."""
@@ -23,7 +28,7 @@ class IGameEngine:
         """Toggle cheat features: 'INVINCIBILITY', 'SKIP_LEVEL', 'FREEZE_GHOSTS', 'ADD_LIFE', 'SPEED'."""
         ...
 
-    def get_state(self) -> GameStateDTO:
+    def get_state(self) -> GameStateDT:
         """Return an immutable snapshot of current game state for rendering."""
         ...
 
