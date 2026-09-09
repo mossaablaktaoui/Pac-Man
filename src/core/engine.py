@@ -3,7 +3,7 @@ from typing import List
 from src.core.entities import Direction, GameStateDT
 
 
-class IGameEngine:
+class GameEngine:
     def load_config(self, config_data: dict) -> None:
         """Initialize engine settings from validated config."""
         ...
@@ -25,7 +25,8 @@ class IGameEngine:
         ...
 
     def trigger_cheat(self, cheat_code: str) -> None:
-        """Toggle cheat features: 'INVINCIBILITY', 'SKIP_LEVEL', 'FREEZE_GHOSTS', 'ADD_LIFE', 'SPEED'."""
+        """Toggle cheat features: 'INVINCIBILITY', 'SKIP_LEVEL',
+        'FREEZE_GHOSTS', 'ADD_LIFE', 'SPEED'."""
         ...
 
     def get_state(self) -> GameStateDT:
