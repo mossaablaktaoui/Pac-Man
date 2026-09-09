@@ -3,10 +3,12 @@ from src.screens import MainMenu, InGame, GameOver
 
 class GameManager:
     def __init__(self,
+                 screen,
                  screen_width: int = 1920,
                  screen_height: int = 1080
                  ) -> None:
 
+        self.screen = screen
         self.screen_width = screen_width
         self.screen_height = screen_height
 
@@ -23,7 +25,7 @@ class GameManager:
             self.current_screen = self.main_menu
         elif self.state == "INGAME":
             if self.ingame is None:
-                self.ingame = InGame()
+                self.ingame = InGame(self.screen)
             self.current_screen = self.ingame
         elif self.state == "GAME_OVER":
             if self.game_over is None:

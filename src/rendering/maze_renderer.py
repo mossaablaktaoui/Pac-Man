@@ -9,7 +9,7 @@ MARGIN = 7
 
 class MazeRenderer:
     def __init__(self):
-        self.maze = MazeAdapter((MAZE_SIZE, MAZE_SIZE), 45)
+        self.maze = MazeAdapter(45)
         maze_width = int((MAZE_SIZE * TILE_SIZE) + (MARGIN * 2))
         maze_height = int((MAZE_SIZE * TILE_SIZE) + (MARGIN * 2))
         self._maze_surface = pygame.Surface(

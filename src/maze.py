@@ -6,11 +6,11 @@ class MazeAdapter:
     SIZE = (20, 20)
 
     def __init__(self, seed: int):
-        self.mazegenerator = MazeGenerator(size=SIZE, seed=seed)
+        self.mazegenerator = MazeGenerator(size=self.SIZE, seed=seed)
         self.mazegenerator.generate()
         self.maze = self.mazegenerator.maze
-        self.width = self.mazegenerator.width
-        self.height = self.mazegenerator.height
+        self.width = self.SIZE[0]
+        self.height = self.SIZE[1]
 
     def get_cells(self) -> Iterator[tuple[int, int, int]]:
         """Yield coordinates and values for each cell in the maze.
@@ -38,15 +38,15 @@ class MazeAdapter:
             return bin_str[2] == "1"
         elif direction == "DOWN":
             return bin_str[3] == "1"
-        
+
         return False
-        
+
     def is_inside(self, x: int, y: int) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height
 
     def get_neighbors(self, x: int, y: int) -> List[Tuple[int, int]]:
         neighbors: List[Tuple[int, int]] = []
-        
+
         if self.can_move(x, y, "UP") and self.is_inside(x, y - 1):
             neighbors.append((x, y - 1))
         if self.can_move(x, y, "RIGHT") and self.is_inside(x + 1, y):
