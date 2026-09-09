@@ -1,7 +1,6 @@
-import pygame
-import sys
+# import pygame
+# import sys
 
-from src.sprites.ghost import PacGum
 from src.renderer import Renderer
 
 
