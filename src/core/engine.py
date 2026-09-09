@@ -52,7 +52,7 @@ class GameEngine:
         """Toggle cheat features: 'INVINCIBILITY', 'SKIP_LEVEL', 'FREEZE_GHOSTS', 'ADD_LIFE', 'SPEED'."""
         pass
 
-    def get_state(self) -> GameStateDTO:
+    def get_state(self) -> GameStateDT:
         """Return an immutable snapshot of current game state for rendering."""
         pass
 
