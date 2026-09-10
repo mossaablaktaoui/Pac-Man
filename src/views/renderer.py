@@ -3,6 +3,7 @@ import pygame
 
 from src.core.engine import GameEngine
 from src.views.screens.game_screen import InGame
+from src.views.screens.menu_screen import MainMenu
 
 IMAGES = "assets/images"
 
@@ -16,6 +17,7 @@ class Renderer:
         self.clock = pygame.time.Clock()
         self.engine = GameEngine()
         self.running = True
+        self.current_screen = "INGAME"
 
         # Windowed mode to prevent OS display crashes
         monitor_sizes = pygame.display.get_desktop_sizes()
@@ -35,8 +37,16 @@ class Renderer:
         self.background = pygame.transform.scale(
             self.background, (self.screen_width, self.screen_height)
         )
+        # Load and scale Menu background to current window dimensions
+        self.menu_background = pygame.image.load(
+            f"{IMAGES}/backgrounds/menu_background.jpg"
+        ).convert()
+        self.menu_background = pygame.transform.scale(
+            self.menu_background, (self.screen_width, self.screen_height)
+        )
 
         self.ingame = InGame(self.screen, self.engine)
+        self.main = MainMenu(self.screen, self.engine)
 
     def run(self) -> None:
         while self.running:
@@ -49,8 +59,13 @@ class Renderer:
                         self.running = False
 
             # 2. Rendering
-            self.screen.blit(self.background, (0, 0))
-            self.ingame.run()
+            self.screen.blit(self.menu_background, (0, 0))
+            if self.current_screen == "MAIN":
+                state = self.main.run()
+                if state and state == "start":
+                    self.current_screen = "INGAME"
+            elif self.current_screen == "INGAME":
+                self.ingame.run()
 
             # 3. Display update & frame-rate cap
             pygame.display.flip()
