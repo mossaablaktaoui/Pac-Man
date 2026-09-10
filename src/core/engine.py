@@ -152,7 +152,7 @@ class GameEngine:
         """Return the current maze wall matrix."""
         return self.maze.maze
 
-     def get_highscores(self) -> List[Dict[str, Any]]:
+    def get_highscores(self) -> List[Dict[str, Any]]:
         """Return the top 10 highscores."""
         return self.highscoresmanager.get_top_10()
 

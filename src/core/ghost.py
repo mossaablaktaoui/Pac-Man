@@ -1,4 +1,6 @@
 from src.core.maze_adapter import MazeAdapter
+from src.core.entities import GameStateDT, SpriteDT, Direction
+from collections import deque
 
 
 class GhostManager:
