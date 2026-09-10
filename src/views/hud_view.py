@@ -1,5 +1,5 @@
 """HUD overlay component for drawing in-game status boards."""
-
+import sys
 import pygame
 
 
@@ -21,17 +21,80 @@ class HUD:
             scale_factor: Scale multiplier for the board images.
         """
         self.screen = screen
+        self.width = self.screen.get_width()
+        self.height = self.screen.get_height()
+        self.buttons = []
+        self.boards = []
+        self.toggle_btns = []
         try:
             self.font = pygame.font.Font(font_path, font_size)
         except (FileNotFoundError, pygame.error):
             self.font = pygame.font.Font(None, font_size)
 
         self.text_color = (255, 255, 255)
+        self._load_buttons()
+        self._load_boards()
+        self._load_onoff()
 
+    def _load_boards(self):
         images_dir = "assets/images/boards"
-        self.tb_img = pygame.image.load(f"{images_dir}/topboard.png")
-        self.tb_rect = self.tb_img.get_rect()
-        self.tb_rect.center = [self.screen.get_width() // 2, 70]
+        boards_config = [
+            ("top", (self.width // 2, 70)),
+            ("side", (self.width * 0.108, self.height // 2)),
+            ("cheats", (self.width * 0.892, self.height // 2))
+        ]
+        for board in boards_config:
+            img = pygame.image.load(f"{images_dir}/{board[0]}board.png")
+            rect = img.get_rect()
+            rect.center = list(board[1])
+            self.boards.append({
+                "name": board[0],
+                "image": img,
+                "rect": rect
+            })
+
+    def _load_onoff(self):
+        icons_dir = "assets/images/icons"
+        toggle_config = [
+            ("skip_level", (self.width * 0.945, self.height * 0.445)),
+            ("speed", (self.width * 0.945, self.height * 0.517)),
+            ("unlimited_lives", (self.width * 0.945, self.height * 0.59)),
+            ("freeze_ghosts", (self.width * 0.945, self.height * 0.665)),
+        ]
+        for toggle, cor in toggle_config:
+            on_img = pygame.image.load(f"{icons_dir}/turn_on.png")
+            on_img = pygame.transform.scale_by(on_img, 0.08)
+            off_img = pygame.image.load(f"{icons_dir}/turn_off.png")
+            off_img = pygame.transform.scale_by(off_img, 0.08)
+            rect = on_img.get_rect()
+            rect.center = list(cor)
+            self.toggle_btns.append({
+                "name": toggle,
+                "on": on_img,
+                "off": off_img,
+                "rect": rect
+            })
+
+    def _load_buttons(self):
+        buttons_dir = "assets/images/buttons"
+        buttons_config = [
+            ("pause", 0.75, (0.893, 0.081)),
+            ("instructions", 0.6, (0.107, 0.081))
+        ]
+        for btn in buttons_config:
+            img = pygame.image.load(f"{buttons_dir}/{btn[0]}_idle.png")
+            img = pygame.transform.scale_by(img, btn[1])
+            hover_img = pygame.image.load(f"{buttons_dir}/{btn[0]}_hover.png")
+            hover_img = pygame.transform.scale_by(hover_img, btn[1])
+            rect = img.get_rect()
+            rect.center = [self.width * btn[2][0],
+                           self.height * btn[2][1]]
+            self.buttons.append({
+                "name": btn[0],
+                "idle": img,
+                "hover": hover_img,
+                "rect": rect
+            })
 
     def draw_board_text(
         self, score: int, lives: int, time_left: float, level: int
@@ -61,6 +124,17 @@ class HUD:
             text_rect = text_surf.get_rect(center=(x_pos, y_pos))
             self.screen.blit(text_surf, text_rect)
 
+    def handle_event(self, event: pygame.event.Event) -> str | None:
+        """Handle clicks. Returns the button name if clicked, else None."""
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            for btn in self.buttons:
+                if btn["rect"].collidepoint(event.pos):
+                    if btn["name"] == "quit":
+                        pygame.quit()
+                        sys.exit(0)
+                    return btn["name"]
+        return None
+
     def draw(
         self,
         score: int, lives: int,
@@ -75,5 +149,14 @@ class HUD:
             time_left: Remaining time in seconds.
             level: Current level number.
         """
-        self.screen.blit(self.tb_img, self.tb_rect)
-        self.draw_board_text(score, lives, time_left, level)
+        mouse_pos = pygame.mouse.get_pos()
+        for btn in self.buttons:
+            if btn["rect"].collidepoint(mouse_pos):
+                self.screen.blit(btn["hover"], btn["rect"])
+            else:
+                self.screen.blit(btn["idle"], btn["rect"])
+        for board in self.boards:
+            self.screen.blit(board["image"], board["rect"])
+        for toggle in self.toggle_btns:
+            self.screen.blit(toggle["off"], toggle["rect"])
+        # self.draw_board_text(score, lives, time_left, level)

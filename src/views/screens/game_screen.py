@@ -1,5 +1,6 @@
 import pygame
 
+from src.core.engine import GameEngine
 from src.views.maze_view import MazeRenderer
 from src.views.hud_view import HUD
 
@@ -7,7 +8,9 @@ IMAGES = "assets/images"
 
 
 class InGame:
-    def __init__(self, screen, engine) -> None:
+    def __init__(self,
+                 screen: pygame.surface.Surface,
+                 engine: GameEngine) -> None:
         self.screen = screen
         self.engine = engine
 
@@ -34,4 +37,10 @@ class InGame:
             self.engine.gamestate.level,
         )
 
+        action = None
+        for event in pygame.event.get():
+            result = self.hud.handle_event(event)
+            if result:
+                action = result
         pygame.display.flip()
+        return action

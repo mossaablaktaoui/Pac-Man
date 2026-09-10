@@ -77,7 +77,7 @@ class MazeRenderer:
             pygame.draw.line(surface, wall_color, start, end, thickness)
             pygame.draw.line(surface, (130, 200, 255), start, end, 2)
 
-    def _render_maze(self) -> None:
+    def _render_maze(self) -> pygame.surface.Surface:
         """Draw all walls onto the cached surface one time."""
         self.maze_surface.fill((20, 40, 180, 80))
         for row_idx, row in enumerate(self.grid):
