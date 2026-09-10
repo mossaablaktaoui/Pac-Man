@@ -1,7 +1,7 @@
 import json
-from typing import Any
-from pathlib import Path
 import sys
+from pathlib import Path
+from typing import Any
 
 
 class ConfigError(Exception):
@@ -21,36 +21,49 @@ class Config:
         self.seed = 42
         self.level_max_time = 120
 
-    def parse_args(self):
+        self.load()
+
+    def parse_args(self) -> Path:
+        """Parse the configuration file argument."""
         args = sys.argv[1:]
-        if len(args) > 1:
-            raise ConfigError("Error: Too many arguments provided. "
-                              "Expected exactly 1 argument (config file).")
-        return Path(args[0])
+
+        if len(args) != 1:
+            raise ConfigError(
+                "Error: Expected exactly 1 argument (config file)."
+            )
+
+        filename = Path(args[0])
+
+        if filename.suffix.lower() != ".json":
+            raise ConfigError("Error: Config file must be a JSON file.")
+
+        return filename
 
     def read_file(self) -> str:
         """Read config file."""
         try:
-            if self.filename.is_file():
-                with open(self.filename, "r") as file:
-                    return file.read()
-            else:
+            if not self.filename.is_file():
                 self.create_config()
-                with open("config.json", "r") as file:
-                    return file.read()
 
-        except Exception as error:
-            raise ConfigError(f"Cannot read config file: {error}") from error
+            with open(self.filename, "r") as file:
+                return file.read()
+
+        except OSError as error:
+            raise ConfigError(
+                f"Cannot read config file: {error}"
+            ) from error
 
     def remove_comments(self, content: str) -> str:
         """Remove lines starting with #."""
         if not content:
             return ""
+
         result = []
 
         for line in content.splitlines():
             if line.strip().startswith("#"):
                 continue
+
             result.append(line)
 
         return "\n".join(result)
@@ -59,21 +72,28 @@ class Config:
         """Convert JSON text into a dictionary."""
         try:
             data = json.loads(content)
+
         except json.JSONDecodeError as error:
-            raise ConfigError("Config file has invalid JSON format") from error
+            raise ConfigError(
+                "Config file has invalid JSON format"
+            ) from error
 
         if not isinstance(data, dict):
             raise ConfigError("Config must contain a JSON object")
 
         return data
 
-    def validate(self, config: dict[str, Any]) -> dict[str, Any]:
+    def validate(self, config: dict[str, Any]) -> None:
         """Check values and apply safe defaults."""
-        result = self.DEFAULTS.copy()
-
         filename = config.get("highscore_filename")
+
         if isinstance(filename, str) and filename:
-            result["highscore_filename"] = filename
+            self.highscore_filename = filename
+        elif filename is not None:
+            print(
+                "Warning: invalid 'highscore_filename', "
+                "using default value"
+            )
 
         numeric_keys = [
             "lives",
@@ -88,16 +108,47 @@ class Config:
         for key in numeric_keys:
             value = config.get(key)
 
-            if isinstance(value, int) and value >= 0:
-                result[key] = value
+            if value is None:
+                print(
+                    f"Warning: missing '{key}', "
+                    "using default value"
+                )
+                continue
 
+            if (not isinstance(value, int)
+                or isinstance(value, bool)
+                or value < 0):
+                print(f"Warning: invalid '{key}', "
+                      "using default value")
+                continue
 
+            setattr(self, key, value)
 
-    def create_config(self):
-        with open("config.json", "w") as json_file:
-            json.dump(self.DEFAULTS, json_file, indent=4)
+    def create_config(self) -> None:
+        """Create a config file using default values."""
+        try:
+            with open(self.filename, "w") as json_file:
+                json.dump(
+                    {
+                        "highscore_filename": self.highscore_filename,
+                        "lives": self.lives,
+                        "pacgum": self.pacgum,
+                        "points_per_pacgum": self.points_per_pacgum,
+                        "points_per_super_pacgum":
+                            self.points_per_super_pacgum,
+                        "points_per_ghost": self.points_per_ghost,
+                        "seed": self.seed,
+                        "level_max_time": self.level_max_time,
+                    },
+                    json_file,
+                    indent=4,
+                )
 
-    def load(self) -> dict[str, Any]:
+        except OSError as error:
+            raise ConfigError(
+                f"Cannot create config file: {error}")
+
+    def load(self) -> None:
         """Run the complete parsing process."""
         content = self.read_file()
         content = self.remove_comments(content)

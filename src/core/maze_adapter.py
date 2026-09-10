@@ -57,3 +57,7 @@ class MazeAdapter:
             neighbors.append((x - 1, y))
 
         return neighbors
+
+    def is_walkable(x: int, y:int) -> bool:
+        return self.maze[x][y] != 15
+    

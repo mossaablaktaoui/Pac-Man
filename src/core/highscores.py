@@ -20,9 +20,13 @@ class HighscoreManager:
             if isinstance(data, list):
                 self.scores = data
 
-        except (OSError, json.JSONDecodeError):
-            raise HighscoreManagerError("High scores file doesn't"
-                                        " fit a JSON list object")
+        except FileNotFoundError:
+            self.scores = []
+
+        except (OSError, json.JSONDecodeError) as error:
+            raise HighscoreManagerError(
+                "High scores file doesn't fit a JSON list object"
+            ) from error
 
     def validate_name(self, name: str) -> bool:
         """Check player name."""
@@ -35,7 +39,7 @@ class HighscoreManager:
         if not self.validate_name(name):
             raise HighscoreManagerError("the name is not valid")
 
-        if score < 0:
+        if (not isinstance(score, int) or score < 0):
             raise HighscoreManagerError("the score is not valid")
 
         self.scores.append(
@@ -45,9 +49,7 @@ class HighscoreManager:
             }
         )
 
-        self.scores.sort(key=lambda item: item["score"],
-                         reverse=True)
-
+        self.scores.sort( key=lambda item: item["score"], reverse=True)
         self.scores = self.scores[:10]
         return True
 

@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.core.cheats import CheatCode
 
 
 class Direction(str, Enum):
@@ -17,23 +20,23 @@ class GhostState(str, Enum):
     EATEN = "EATEN"
 
 
-@dataclass(frozen=True)
+@dataclass()
 class SpriteDT:
-    id: str                     # "pacman", "blinky", "pinky", "inky", "clyde"
-    grid_x: int                      # Current column in maze
-    grid_y: int                      # Current row in maze
+    id: str
+    grid_x: int
+    grid_y: int
     direction: Direction
-    state: str                       # e.g. "ALIVE", "DEAD", or GhostState
+    state: str
 
 
-@dataclass(frozen=True)
+@dataclass()
 class PacgumDT:
     grid_x: int
     grid_y: int
     is_super: bool
 
 
-@dataclass(frozen=True)
+@dataclass()
 class GameStateDT:
     level: int
     score: int
@@ -44,8 +47,11 @@ class GameStateDT:
     is_victory: bool
     is_level_cleared: bool
     pacman: SpriteDT
-    ghosts: List[SpriteDT]
-    pacgums: List[PacgumDT]
+    ghosts: list[SpriteDT]
+    pacgums: list[PacgumDT]
     grid_width: int
     grid_height: int
-    active_cheats: List[str]
+    active_cheats: dict[
+        "CheatCode",
+        dict[str, str | int | float],
+    ]
