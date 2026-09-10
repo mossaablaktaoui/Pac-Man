@@ -1,8 +1,10 @@
 from typing import Any, List, Dict
 
 from src.core.highscores import HighscoreManager
+from src.core.cheats import Cheats, CheatCode
 from src.core.maze_adapter import MazeAdapter
 from src.core.config import Config
+from src.core.ghost import GhostManager
 from src.core.entities import (
     GameStateDT,
     SpriteDT,
@@ -10,7 +12,6 @@ from src.core.entities import (
     Direction,
     GhostState,
 )
-from src.core.cheats import Cheats, CheatCode
 
 
 class GameEngine:
@@ -21,6 +22,9 @@ class GameEngine:
         self.gamestate = self.setup_game_state()
         self.cheats = Cheats(self.gamestate)
         self.highscoresmanager = HighscoreManager(self.config.highscore_filename)
+        self.next_direction = self.gamestate.pacman.direction
+        self.pacman_move_timer = 0.0
+        self.ghost_manager = GhostManager(self.maze)
 
     def setup_game_state(self) -> GameStateDT:
         """Create the initial game state."""
@@ -108,24 +112,7 @@ class GameEngine:
             pacgums=pacgums,
             grid_width=width,
             grid_height=height,
-            active_cheats={
-                CheatCode.SKIP_LEVEL: {
-                    "state": "off",
-                    "level": 0,
-                },
-                CheatCode.UNLIMITED_LIFE: {
-                    "state": "off",
-                    "remaining_time": 0.0,
-                },
-                CheatCode.FREEZE_GHOSTS: {
-                    "state": "off",
-                    "remaining_time": 0.0,
-                },
-                CheatCode.SPEED: {
-                    "state": "off",
-                    "remaining_time": 0.0,
-                },
-            },
+            active_cheats=[],
         )
         return gamestate
 
@@ -135,8 +122,14 @@ class GameEngine:
         self.cheats = Cheats(self.gamestate)
 
     def update(self, dt: float) -> None:
-        """Advance game physics and timers."""
-        self.cheats.update(dt)
+        self.pacman_move_timer += dt
+
+        if self.pacman_move_timer >= 0.2:
+            self._move_pacman()
+            self.pacman_move_timer = 0.0
+            self._collect_pacgum()
+
+        self.ghost_manager.update(self.gamestate, dt)
 
     def set_player_direction(self, direction: Direction) -> None:
         """Queue the next intended direction for Pac-Man."""
@@ -157,6 +150,7 @@ class GameEngine:
 
     def get_wall_matrix(self) -> List[List[int]]:
         """Return the current maze wall matrix."""
+        return self.maze.maze
 
      def get_highscores(self) -> List[Dict[str, Any]]:
         """Return the top 10 highscores."""
@@ -168,4 +162,47 @@ class GameEngine:
             name,
             self.gamestate.score,
         )
-        self.highscores.save_scores()       return self.maze.maze
+        self.highscores.save_scores()
+
+    def _move_pacman(self) -> None:
+        pacman = self.gamestate.pacman
+        pac_x = pacman.grid_x
+        pac_y = pacman.grid_y
+
+        if self.maze.can_move(pac_x, pac_y, self.next_direction):
+            pacman.direction = self.next_direction
+
+        direction = pacman.direction
+
+        if self.maze.can_move(pac_x, pac_y, direction):
+            if direction == Direction.UP:
+                pacman.grid_y -= 1
+            elif direction == Direction.RIGHT:
+                pacman.grid_x += 1
+            elif direction == Direction.DOWN:
+                pacman.grid_y += 1
+            elif direction == Direction.LEFT:
+                pacman.grid_x -= 1
+
+    def _collect_pacgum(self) -> None:
+        pacman = self.gamestate.pacman
+        pacgums = self.gamestate.pacgums
+        pac_x = pacman.grid_x
+        pac_y = pacman.grid_y
+
+        for pacgum in pacgums:
+            if pacgum.grid_x == pac_x and pacgum.grid_y == pac_y:
+                if pacgum.is_super:
+                    self.gamestate.score += (
+                        self.config.points_per_super_pacgum
+                    )
+                else:
+                    self.gamestate.score += (
+                        self.config.points_per_pacgum
+                    )
+
+                pacgums.remove(pacgum)
+                break
+
+        if not pacgums:
+            self.gamestate.is_level_cleared = True

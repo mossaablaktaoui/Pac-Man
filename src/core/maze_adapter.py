@@ -1,6 +1,6 @@
 from typing import Tuple, Iterator, List
 from mazegenerator import MazeGenerator
-
+from src.core.entities import Direction
 
 class MazeAdapter:
     SIZE = (20, 20)
@@ -25,18 +25,18 @@ class MazeAdapter:
             for col_idx, cell_value in enumerate(row):
                 yield (row_idx, col_idx, cell_value)
 
-    def can_move(self, x: int, y: int, direction: str) -> bool:
-        cell_value = self.maze[x][y]
+    def can_move(self, x: int, y: int, direction: Direction) -> bool:
+        cell_value = self.maze[y][x]
 
         bin_str = f"{cell_value:04b}"
 
-        if direction == "UP":
+        if direction == Direction.UP:
             return bin_str[0] == "1"
-        elif direction == "RIGHT":
+        elif direction == Direction.RIGHT:
             return bin_str[1] == "1"
-        elif direction == "LEFT":
+        elif direction == Direction.DOWN:
             return bin_str[2] == "1"
-        elif direction == "DOWN":
+        elif direction == Direction.LEFT:
             return bin_str[3] == "1"
 
         return False
@@ -47,17 +47,17 @@ class MazeAdapter:
     def get_neighbors(self, x: int, y: int) -> List[Tuple[int, int]]:
         neighbors: List[Tuple[int, int]] = []
 
-        if self.can_move(x, y, "UP") and self.is_inside(x, y - 1):
+        if self.can_move(x, y, Direction.UP) and self.is_inside(x, y - 1):
             neighbors.append((x, y - 1))
-        if self.can_move(x, y, "RIGHT") and self.is_inside(x + 1, y):
+        if self.can_move(x, y, Direction.RIGHT) and self.is_inside(x + 1, y):
             neighbors.append((x + 1, y))
-        if self.can_move(x, y, "DOWN") and self.is_inside(x, y + 1):
+        if self.can_move(x, y, Direction.DOWN) and self.is_inside(x, y + 1):
             neighbors.append((x, y + 1))
-        if self.can_move(x, y, "LEFT") and self.is_inside(x - 1, y):
+        if self.can_move(x, y, Direction.LEFT) and self.is_inside(x - 1, y):
             neighbors.append((x - 1, y))
 
         return neighbors
 
-    def is_walkable(x: int, y:int) -> bool:
-        return self.maze[x][y] != 15
+    def is_walkable(self, x: int, y: int) -> bool:
+        return self.maze[y][x] != 15
     

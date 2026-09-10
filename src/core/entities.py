@@ -51,7 +51,4 @@ class GameStateDT:
     pacgums: list[PacgumDT]
     grid_width: int
     grid_height: int
-    active_cheats: dict[
-        "CheatCode",
-        dict[str, str | int | float],
-    ]
+    active_cheats: list["CheatCode"]
