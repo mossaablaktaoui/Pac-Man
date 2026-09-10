@@ -1,21 +1,22 @@
 import pygame
 
-from src.maze import MazeAdapter
+from src.core.engine import GameEngine
 
 TILE_SIZE = 40
-MAZE_SIZE = 20
 MARGIN = 7
 
 
 class MazeRenderer:
-    def __init__(self):
-        self.maze = MazeAdapter(45)
-        maze_width = int((MAZE_SIZE * TILE_SIZE) + (MARGIN * 2))
-        maze_height = int((MAZE_SIZE * TILE_SIZE) + (MARGIN * 2))
-        self._maze_surface = pygame.Surface(
-            (maze_width, maze_height), pygame.SRCALPHA)
-        self._maze_surface.fill((20, 40, 180, 80))
-        self._prepare_maze_surface()
+    def __init__(self, engine: GameEngine):
+        self.engine = engine
+        self.grid = self.engine.get_wall_matrix()
+        self.maze_size = (
+            len(self.grid[0]) * TILE_SIZE + 2 * MARGIN,
+            len(self.grid) * TILE_SIZE + 2 * MARGIN
+            )
+
+        self.maze_surface = pygame.Surface(self.maze_size, pygame.SRCALPHA)
+        self._render_maze()
 
     def grid_to_pixel(self, col: int, row: int) -> tuple[int, int]:
         """Convert maze grid (col, row) to center pixel coordinates."""
@@ -23,15 +24,13 @@ class MazeRenderer:
         py = MARGIN + row * TILE_SIZE + TILE_SIZE // 2
         return px, py
 
-    def _draw_cell(
-        self,
-        cell_value: int,
-        px: int,
-        py: int,
-        tile_size: int,
-        wall_color: tuple[int, int, int] = (20, 40, 180),
-        thickness: int = 5,
-    ) -> None:
+    def _draw_cell(self,
+                   cell_value: int,
+                   px: int, py: int,
+                   tile_size: int,
+                   wall_color: tuple[int, int, int] = (20, 40, 180),
+                   thickness: int = 5,
+                   ) -> None:
         """Draw a single maze cell on the target surface based on its bitmask.
 
         Args:
@@ -43,7 +42,7 @@ class MazeRenderer:
             wall_color: RGB tuple for the wall color.
             thickness: Line width in pixels.
         """
-        surface = self._maze_surface
+        surface = self.maze_surface
         # 15 represents a solid obstacle block (e.g., the center '42')
         if cell_value == 15:
             rect = pygame.Rect(px, py, tile_size, tile_size)
@@ -78,8 +77,17 @@ class MazeRenderer:
             pygame.draw.line(surface, wall_color, start, end, thickness)
             pygame.draw.line(surface, (130, 200, 255), start, end, 2)
 
-    def _prepare_maze_surface(self):
-        for col, row, val in self.maze.get_cells():
-            px = col * TILE_SIZE + MARGIN
-            py = row * TILE_SIZE + MARGIN
-            self._draw_cell(val, px, py, TILE_SIZE)
+    def _render_maze(self) -> None:
+        """Draw all walls onto the cached surface one time."""
+        self.maze_surface.fill((20, 40, 180, 80))
+        for row_idx, row in enumerate(self.grid):
+            for col_idx, cell_value in enumerate(row):
+                px = col_idx * TILE_SIZE + MARGIN
+                py = row_idx * TILE_SIZE + MARGIN
+                self._draw_cell(cell_value, px, py, TILE_SIZE)
+        return self.maze_surface
+
+    def draw(self) -> pygame.Surface:
+        """Instantly return the pre-rendered surface
+        (runs at 60 FPS without lag)."""
+        return self.maze_surface

@@ -1,37 +1,37 @@
-import sys
 import pygame
 
-# from src.sprites.pacman import PacMan
-# from src.sprites.ghost import Ghost
-# from src.sprites.pacgum import Pacgum
-from src.rendering.maze_renderer import MazeRenderer
-from src.ui.hud import HUD
+from src.views.maze_view import MazeRenderer
+from src.views.hud_view import HUD
 
 IMAGES = "assets/images"
-X_OFFSET = 560
-Y_OFFSET = 140
 
 
 class InGame:
-    def __init__(self, screen) -> None:
+    def __init__(self, screen, engine) -> None:
         self.screen = screen
-        self.maze_renderer = MazeRenderer()
-        self.hud = HUD()
+        self.engine = engine
+
+        # Maze pre-rendring
+        self.maze_renderer = MazeRenderer(self.engine)
+        self.maze_surface = self.maze_renderer.draw()
+        self.maze_xoffset = (self.screen.get_width() -
+                             self.maze_surface.get_width()) // 2
+        self.maze_yoffset = (self.screen.get_height() -
+                             self.maze_surface.get_height()) // 2
+
+        # Set the on screen layouts
+        self.hud = HUD(self.screen)
 
     def run(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
         self.screen.blit(
-            self.maze_renderer._maze_surface, (X_OFFSET, Y_OFFSET)
+            self.maze_surface,
+            (self.maze_xoffset, self.maze_yoffset)
         )
         self.hud.draw(
-            self.screen,
-            score=0,
-            lives=3,
-            time_left=0.0,
-            level=1,
+            self.engine.gamestate.score,
+            self.engine.gamestate.lives,
+            self.engine.gamestate.time_remaining,
+            self.engine.gamestate.level,
         )
+
         pygame.display.flip()
