@@ -115,9 +115,12 @@ class Config:
                 )
                 continue
 
-            if (not isinstance(value, int)
+            if (
+                not isinstance(value, int)
                 or isinstance(value, bool)
-                or value < 0):
+                or value < 0
+                or (key == "pacgum" and value < 4)):
+
                 print(f"Warning: invalid '{key}', "
                       "using default value")
                 continue

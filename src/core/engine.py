@@ -1,4 +1,5 @@
 from typing import Any, List, Dict
+import random
 
 from src.core.highscores import HighscoreManager
 from src.core.cheats import Cheats, CheatCode
@@ -119,21 +120,45 @@ class GameEngine:
     def start_new_game(self) -> None:
         """Reset scores, lives, level count, and spawn entities."""
         self.gamestate = self.setup_game_state()
-        self.cheats = Cheats(self.gamestate)
+        self.cheats.gamestate = self.gamestate
+        self.next_direction = self.gamestate.pacman.direction
+        self.pacman_move_timer = 0.0
 
     def update(self, dt: float) -> None:
+        # stop simulation if the game is paused or over.
+        if (self.gamestate.is_paused
+            or self.gamestate.is_game_over
+            or self.gamestate.is_level_cleared):
+            return
+
+        # stop the game when the time is over.
+        self.gamestate.time_remaining -= dt
+
+        if self.gamestate.time_remaining <= 0.0:
+            self.gamestate.time_remaining = 0.0
+            self.gamestate.is_game_over = True
+            return
+
+        # control pacman speed and increase it in cheat mode.
         self.pacman_move_timer += dt
 
-        if self.pacman_move_timer >= 0.2:
+        move_delay = 0.1 if self.cheats.is_active(CheatCode.SPEED) else 0.2
+
+        if self.pacman_move_timer >= move_delay:
             self._move_pacman()
             self.pacman_move_timer = 0.0
             self._collect_pacgum()
 
-        self.ghost_manager.update(self.gamestate, dt)
+        # update ghosts state while they are not freezed.
+        if not self.cheats.is_active(CheatCode.FREEZE_GHOSTS):
+            self.ghost_manager.update(self.gamestate, dt)
+
+        # check for being pacman and a ghost in the same cell to end the game.
+        self._check_ghost_collision()
 
     def set_player_direction(self, direction: Direction) -> None:
         """Queue the next intended direction for Pac-Man."""
-        self.gamestate.pacman.direction = direction
+        self.next_direction = direction
 
     def toggle_pause(self) -> bool:
         """Toggle paused state and return new pause status."""
@@ -158,11 +183,8 @@ class GameEngine:
 
     def save_highscore(self, name: str) -> None:
         """Save the current game score."""
-        self.highscores.add_score(
-            name,
-            self.gamestate.score,
-        )
-        self.highscores.save_scores()
+        self.highscoresmanager.add_score(name, self.gamestate.score)
+        self.highscoresmanager.save_scores()
 
     def _move_pacman(self) -> None:
         pacman = self.gamestate.pacman
@@ -196,6 +218,7 @@ class GameEngine:
                     self.gamestate.score += (
                         self.config.points_per_super_pacgum
                     )
+                    self.ghost_manager.make_edible(self.gamestate)
                 else:
                     self.gamestate.score += (
                         self.config.points_per_pacgum
@@ -206,3 +229,71 @@ class GameEngine:
 
         if not pacgums:
             self.gamestate.is_level_cleared = True
+
+    def _check_ghost_collision(self) -> None:
+        if self.cheats.is_active(CheatCode.UNLIMITED_LIFE):
+            return
+
+        pacman = self.gamestate.pacman
+
+        for ghost in self.gamestate.ghosts:
+            if (ghost.grid_x == pacman.grid_x
+                    and ghost.grid_y == pacman.grid_y):
+
+                if ghost.state == GhostState.EDIBLE:
+                    self.gamestate.score += self.config.points_per_ghost
+                    ghost.state = GhostState.EATEN
+                    return
+
+                if ghost.state == GhostState.EATEN:
+                    continue
+
+                self.gamestate.lives -= 1
+
+                if self.gamestate.lives <= 0:
+                    self.gamestate.is_game_over = True
+                    return
+
+                self._reset_positions()
+                return
+
+    def _reset_positions(self):
+        pacman = self.gamestate.pacman
+
+        pacman.grid_x = self.gamestate.grid_width // 2
+        pacman.grid_y = self.gamestate.grid_height // 2
+
+        positions = [
+            (0, 0),
+            (self.gamestate.grid_width - 1, 0),
+            (0, self.gamestate.grid_height - 1),
+            (self.gamestate.grid_width - 1, self.gamestate.grid_height - 1),
+        ]
+
+        for ghost, (x, y) in zip(self.gamestate.ghosts, positions):
+            ghost.grid_x = x
+            ghost.grid_y = y
+            ghost.state = GhostState.NORMAL
+
+        self.ghost_manager = GhostManager(self.maze)
+        return
+
+    def start_next_level(self) -> None:
+        old_score = self.gamestate.score
+        old_lives = self.gamestate.lives
+        next_level = self.gamestate.level + 1
+
+        self.maze = MazeAdapter(random.randint(1, 100))
+        self.gamestate = self.setup_game_state()
+
+        self.gamestate.score = old_score
+        self.gamestate.lives = old_lives
+        self.gamestate.level = next_level
+
+        self.cheats.gamestate = self.gamestate
+        self.next_direction = self.gamestate.pacman.direction
+        self.pacman_move_timer = 0.0
+
+        self.ghost_manager = GhostManager(self.maze)
+
+        return
