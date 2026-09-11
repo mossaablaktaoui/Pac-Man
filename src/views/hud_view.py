@@ -55,10 +55,14 @@ class HUD:
     def _load_onoff(self):
         icons_dir = "assets/images/icons"
         toggle_config = [
-            (CheatCode.SKIP_LEVEL, (self.width * 0.91, self.height * 0.445)),
-            (CheatCode.SPEED, (self.width * 0.91, self.height * 0.517)),
-            (CheatCode.UNLIMITED_LIFE, (self.width * 0.91, self.height * 0.59)),
-            (CheatCode.FREEZE_GHOSTS, (self.width * 0.91, self.height * 0.665)),
+            (CheatCode.SKIP_LEVEL,
+                (self.width * 0.91, self.height * 0.445)),
+            (CheatCode.SPEED,
+                (self.width * 0.91, self.height * 0.517)),
+            (CheatCode.UNLIMITED_LIFE,
+                (self.width * 0.91, self.height * 0.59)),
+            (CheatCode.FREEZE_GHOSTS,
+                (self.width * 0.91, self.height * 0.665)),
         ]
         for toggle, cor in toggle_config:
             on_img = pygame.image.load(f"{icons_dir}/turn_on.png")

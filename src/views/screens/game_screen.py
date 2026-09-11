@@ -58,11 +58,6 @@ class SrcInGame:
                 self.engine.toggle_cheat(CheatCode.UNLIMITED_LIFE)
             if event.key == pygame.K_j:
                 self.engine.toggle_cheat(CheatCode.FREEZE_GHOSTS)
-        if self.engine.gamestate.is_game_over:
-            # self.engine.save_highscore()
-            action = "gameover"
-        if self.engine.gamestate.is_victory:
-            action = "victory"
         return action
 
     def draw(self, dt: float) -> None:

@@ -1,14 +1,9 @@
-import sys
 import pygame
-from typing import List, Dict
-
 from src.core.engine import GameEngine
 
 
-class ScrGameOver:
-    def __init__(self,
-                 screen: pygame.Surface,
-                 engine: GameEngine) -> None:
+class ScrSaveScore:
+    def __init__(self, screen: pygame.Surface, engine: GameEngine) -> None:
         self.screen = screen
         self.engine = engine
 
@@ -19,35 +14,39 @@ class ScrGameOver:
 
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
+        self.user_text = ""
+        self._load_assets()
 
-    def draw_name_text(self, score: int = 0, highscore: int = 0) -> None:
-        # Horizontal center ratios across the board for each column
-        text_color = (255, 255, 255)
-        text_surf = self.font.render(text_val, True, text_color)
+    def _load_assets(self) -> None:
+        boards_dir = "assets/images/boards"
+        self.board_img = pygame.image.load(
+            f"{boards_dir}/save_score_board.png")
+        self.board_img = pygame.transform.scale_by(self.board_img, 0.25)
+        self.board_rect = self.board_img.get_rect()
+        self.board_rect.center = (self.width // 2, self.height // 2)
+
+    def draw_name_text(self) -> None:
+        text_surf = self.font.render(self.user_text, True, (255, 255, 255))
         text_rect = text_surf.get_rect()
-        text_rect.center = [self.width * 0.6, self.height * ratio]
+        text_rect.center = (int(self.width * 0.6), int(self.height * 0.4))
         self.screen.blit(text_surf, text_rect)
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Handle clicks. Returns the button name if clicked, else None."""
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            for btn in self.buttons:
-                if btn["rect"].collidepoint(event.pos):
-                    if btn["name"] == "quit":
-                        pygame.quit()
-                        sys.exit(0)
-                    if btn["name"] == "reply":
-                        self.engine.start_new_game()
-                    return btn["name"]
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                self.user_text = self.user_text[:-1]
+
+            elif event.key == pygame.K_RETURN:
+                if len(self.user_text) > 0:
+                    if self.engine.gamestate.is_victory:
+                        return "victory"
+                    return "gameover"
+
+            elif len(self.user_text) < 10 and event.unicode.isalnum():
+                self.user_text += event.unicode
+
         return None
 
     def draw(self) -> None:
-        """Render the maze and HUD."""
-        mouse_pos = pygame.mouse.get_pos()
-        for btn in self.buttons:
-            if btn["rect"].collidepoint(mouse_pos):
-                self.screen.blit(btn["hover"], btn["rect"])
-            else:
-                self.screen.blit(btn["idle"], btn["rect"])
-        self.draw_score_text(self.engine.gamestate.score,
-                             self.engine.get_highscore())
+        self.screen.blit(self.board_img, self.board_rect)
+        self.draw_name_text()

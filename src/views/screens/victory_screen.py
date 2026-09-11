@@ -49,8 +49,8 @@ class ScrVictory:
         # Horizontal center ratios across the board for each column
         text_color = (255, 255, 255)
         column_ratios: dict[str, tuple[str, float]] = {
-            "score": (f"{score:06d}", 0.515),
-            "lives": (f"{highscore:06d}", 0.565),
+            "score": (f"{self.engine.gamestate.score:06d}", 0.515),
+            "lives": (f"{self.engine.get_highscore():06d}", 0.565),
         }
 
         for text_val, ratio in column_ratios.values():
