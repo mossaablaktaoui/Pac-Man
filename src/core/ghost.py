@@ -69,6 +69,13 @@ class GhostManager:
         if next_cell is None:
             return
 
+        for other in gamestate.ghosts:
+            if other is ghost:
+                continue
+
+            if (other.grid_x, other.grid_y) == next_cell:
+                return
+
         next_x, next_y = next_cell
 
         if next_x > ghost.grid_x:
