@@ -1,21 +1,16 @@
 import sys
 import pygame
-from typing import List, Dict
+from typing import Dict, List
 
 from src.core.engine import GameEngine
 
 
-class ScrVictory:
+class ScrInstructions:
     def __init__(self,
                  screen: pygame.Surface,
                  engine: GameEngine) -> None:
         self.screen = screen
         self.engine = engine
-
-        try:
-            self.font = pygame.font.Font("assets/fonts/pacfont.ttf", 22)
-        except (FileNotFoundError, pygame.error):
-            self.font = pygame.font.Font(None, 22)
 
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
@@ -26,9 +21,8 @@ class ScrVictory:
     def _load_buttons(self):
         buttons_dir = "assets/images/buttons"
         buttons_config = [
-            ("menu", 0.5, (0.4, 0.695)),
-            ("highscores", 0.53, (0.6, 0.695)),
-            ("quit", 0.53, (0.5, 0.83)),
+            ("start", 0.5, (0.89, 0.081)),
+            ("menu", 0.5, (0.11, 0.081))
         ]
         for btn in buttons_config:
             img = pygame.image.load(f"{buttons_dir}/{btn[0]}_idle.png")
@@ -45,22 +39,8 @@ class ScrVictory:
                 "rect": rect
             })
 
-    def draw_score_text(self, score: int = 0, highscore: int = 0) -> None:
-        # Horizontal center ratios across the board for each column
-        text_color = (255, 255, 255)
-        column_ratios: dict[str, tuple[str, float]] = {
-            "score": (f"{score:06d}", 0.515),
-            "lives": (f"{highscore:06d}", 0.565),
-        }
-
-        for text_val, ratio in column_ratios.values():
-            text_surf = self.font.render(text_val, True, text_color)
-            text_rect = text_surf.get_rect()
-            text_rect.center = [self.width * 0.6, self.height * ratio]
-            self.screen.blit(text_surf, text_rect)
-
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Handle clicks. Returns the button name if clicked, else None."""
+        """Forward events to HUD or process gameplay keys."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for btn in self.buttons:
                 if btn["rect"].collidepoint(event.pos):
@@ -78,4 +58,3 @@ class ScrVictory:
                 self.screen.blit(btn["hover"], btn["rect"])
             else:
                 self.screen.blit(btn["idle"], btn["rect"])
-        self.draw_score_text()

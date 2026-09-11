@@ -3,18 +3,16 @@ import pygame
 from src.core.engine import GameEngine
 from src.views.maze_view import MazeRenderer
 from src.views.hud_view import HUD
+from src.views.sprite_view import SpriteView
 
-IMAGES = "assets/images"
 
-
-class InGame:
+class SrcInGame:
     def __init__(self,
-                 screen: pygame.surface.Surface,
+                 screen: pygame.Surface,
                  engine: GameEngine) -> None:
         self.screen = screen
         self.engine = engine
 
-        # Maze pre-rendring
         self.maze_renderer = MazeRenderer(self.engine)
         self.maze_surface = self.maze_renderer.draw()
         self.maze_xoffset = (self.screen.get_width() -
@@ -22,10 +20,16 @@ class InGame:
         self.maze_yoffset = (self.screen.get_height() -
                              self.maze_surface.get_height()) // 2
 
-        # Set the on screen layouts
         self.hud = HUD(self.screen)
+        self.sprite_view = SpriteView(
+            self.screen, self.maze_xoffset, self.maze_yoffset)
 
-    def run(self):
+    def handle_event(self, event: pygame.event.Event) -> str | None:
+        """Forward events to HUD or process gameplay keys."""
+        return self.hud.handle_event(event)
+
+    def draw(self, dt: float) -> None:
+        """Render the maze and HUD."""
         self.screen.blit(
             self.maze_surface,
             (self.maze_xoffset, self.maze_yoffset)
@@ -36,11 +40,4 @@ class InGame:
             self.engine.gamestate.time_remaining,
             self.engine.gamestate.level,
         )
-
-        action = None
-        for event in pygame.event.get():
-            result = self.hud.handle_event(event)
-            if result:
-                action = result
-        pygame.display.flip()
-        return action
+        self.sprite_view.draw(self.engine.gamestate, dt)

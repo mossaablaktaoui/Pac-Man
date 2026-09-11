@@ -18,7 +18,8 @@ class MazeRenderer:
         self.maze_surface = pygame.Surface(self.maze_size, pygame.SRCALPHA)
         self._render_maze()
 
-    def grid_to_pixel(self, col: int, row: int) -> tuple[int, int]:
+    @staticmethod
+    def grid_to_pixel(col: int, row: int) -> tuple[int, int]:
         """Convert maze grid (col, row) to center pixel coordinates."""
         px = MARGIN + col * TILE_SIZE + TILE_SIZE // 2
         py = MARGIN + row * TILE_SIZE + TILE_SIZE // 2

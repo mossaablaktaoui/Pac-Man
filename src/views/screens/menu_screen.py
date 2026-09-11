@@ -1,5 +1,6 @@
 import sys
 import pygame
+from typing import Dict, List
 
 from src.core.engine import GameEngine
 
@@ -8,14 +9,14 @@ GHOSTS_DIR = "assets/images/ghosts"
 PACMAN_DIR = "assets/images/pacman"
 
 
-class MainMenu:
+class SrcMainMenu:
     def __init__(self,
                  screen: pygame.surface.Surface,
                  engine: GameEngine) -> None:
         self.screen = screen
-        self.buttons = []
-        self.ghosts = []
-        self.pacman_frames = []
+        self.buttons: List[Dict] = []
+        self.ghosts: List[Dict] = []
+        self.pacman_frames: List = []
         self.selected_btn = "START"
 
         self.width = self.screen.get_width()
@@ -113,7 +114,7 @@ class MainMenu:
             x += spacing
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Handle clicks. Returns the button name if clicked, else None."""
+        """Handle mouse clicks. Returns button name or None."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for btn in self.buttons:
                 if btn["rect"].collidepoint(event.pos):
@@ -130,7 +131,6 @@ class MainMenu:
         self._draw_pacgums()
 
         for btn in self.buttons:
-            # If mouse is on the button, draw hover; otherwise draw idle
             if btn["rect"].collidepoint(mouse_pos):
                 self.screen.blit(btn["hover"], btn["rect"])
             else:
@@ -142,12 +142,3 @@ class MainMenu:
 
         pac_idx = (pygame.time.get_ticks() // 200) % 4
         self.screen.blit(self.pacman_frames[pac_idx], self.pacman_rect)
-
-    def run(self) -> str | None:
-        action = None
-        for event in pygame.event.get():
-            result = self.handle_event(event)
-            if result:
-                action = result
-        self.draw()
-        return action

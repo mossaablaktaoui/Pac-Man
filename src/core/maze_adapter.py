@@ -3,7 +3,7 @@ from mazegenerator import MazeGenerator
 from src.core.entities import Direction
 
 class MazeAdapter:
-    SIZE = (20, 20)
+    SIZE = (21, 21)
 
     def __init__(self, seed: int):
         self.mazegenerator = MazeGenerator(size=self.SIZE, seed=seed)

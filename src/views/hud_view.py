@@ -1,18 +1,13 @@
 """HUD overlay component for drawing in-game status boards."""
 import sys
 import pygame
+from typing import Dict, List
 
 
 class HUD:
     """Manages loading and rendering game status boards and text."""
 
-    def __init__(
-        self,
-        screen,
-        font_path: str = "assets/fonts/pacfont.ttf",
-        font_size: int = 18,
-        scale_factor: float = 0.5,
-    ) -> None:
+    def __init__(self, screen) -> None:
         """Initialize fonts and preload all board panels.
 
         Args:
@@ -23,13 +18,13 @@ class HUD:
         self.screen = screen
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
-        self.buttons = []
-        self.boards = []
-        self.toggle_btns = []
+        self.buttons: List[Dict] = []
+        self.boards: List[Dict] = []
+        self.toggle_btns: List[Dict] = []
         try:
-            self.font = pygame.font.Font(font_path, font_size)
+            self.font = pygame.font.Font("assets/fonts/pacfont.ttf", 18)
         except (FileNotFoundError, pygame.error):
-            self.font = pygame.font.Font(None, font_size)
+            self.font = pygame.font.Font(None, 18)
 
         self.text_color = (255, 255, 255)
         self._load_buttons()
@@ -40,13 +35,15 @@ class HUD:
         images_dir = "assets/images/boards"
         boards_config = [
             ("top", (self.width // 2, 70)),
-            ("side", (self.width * 0.108, self.height // 2)),
-            ("cheats", (self.width * 0.892, self.height // 2))
+            ("instructions", (self.width * 0.14, self.height // 2)),
+            ("cheats", (self.width * 0.86, self.height // 2))
         ]
         for board in boards_config:
             img = pygame.image.load(f"{images_dir}/{board[0]}board.png")
             rect = img.get_rect()
             rect.center = list(board[1])
+            if board[0] == "top":
+                self.tb_rect = rect  # <-- Added: fixes AttributeError
             self.boards.append({
                 "name": board[0],
                 "image": img,
@@ -56,10 +53,10 @@ class HUD:
     def _load_onoff(self):
         icons_dir = "assets/images/icons"
         toggle_config = [
-            ("skip_level", (self.width * 0.945, self.height * 0.445)),
-            ("speed", (self.width * 0.945, self.height * 0.517)),
-            ("unlimited_lives", (self.width * 0.945, self.height * 0.59)),
-            ("freeze_ghosts", (self.width * 0.945, self.height * 0.665)),
+            ("skip_level", (self.width * 0.91, self.height * 0.445)),
+            ("speed", (self.width * 0.91, self.height * 0.517)),
+            ("unlimited_lives", (self.width * 0.91, self.height * 0.59)),
+            ("freeze_ghosts", (self.width * 0.91, self.height * 0.665)),
         ]
         for toggle, cor in toggle_config:
             on_img = pygame.image.load(f"{icons_dir}/turn_on.png")
@@ -78,8 +75,8 @@ class HUD:
     def _load_buttons(self):
         buttons_dir = "assets/images/buttons"
         buttons_config = [
-            ("pause", 0.75, (0.893, 0.081)),
-            ("instructions", 0.6, (0.107, 0.081))
+            ("pause", 0.75, (0.86, 0.081)),
+            ("menu", 0.6, (0.14, 0.081))
         ]
         for btn in buttons_config:
             img = pygame.image.load(f"{buttons_dir}/{btn[0]}_idle.png")
@@ -159,4 +156,4 @@ class HUD:
             self.screen.blit(board["image"], board["rect"])
         for toggle in self.toggle_btns:
             self.screen.blit(toggle["off"], toggle["rect"])
-        # self.draw_board_text(score, lives, time_left, level)
+        self.draw_board_text(score, lives, time_left, level)
