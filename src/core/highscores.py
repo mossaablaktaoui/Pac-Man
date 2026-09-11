@@ -10,6 +10,7 @@ class HighscoreManager:
     def __init__(self, filename: str) -> None:
         self.filename = filename
         self.scores: list[dict[str, Any]] = []
+        self.load_scores()
 
     def load_scores(self) -> None:
         """Load highscores from file."""
@@ -19,6 +20,10 @@ class HighscoreManager:
 
             if isinstance(data, list):
                 self.scores = data
+            else:
+                raise HighscoreManagerError(
+                    "High scores file must contain a JSON list"
+                )
 
         except FileNotFoundError:
             self.scores = []
@@ -58,8 +63,10 @@ class HighscoreManager:
         try:
             with open(self.filename, "w") as file:
                 json.dump(self.scores, file, indent=4)
-        except OSError:
-            pass
+        except OSError as error:
+            raise HighscoreManagerError(
+                "Cannot save high scores"
+            ) from error
 
     def get_top_10(self) -> list[dict[str, Any]]:
         """Return the top 10 highscores."""

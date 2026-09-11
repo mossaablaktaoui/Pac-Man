@@ -1,29 +1,16 @@
-from typing import Tuple, Iterator, List
+from typing import Tuple, List
 from mazegenerator import MazeGenerator
 from src.core.entities import Direction
 
+
 class MazeAdapter:
-    SIZE = (21, 21)
+    SIZE = (19, 19)
 
     def __init__(self, seed: int):
         self.mazegenerator = MazeGenerator(size=self.SIZE, seed=seed)
-        self.mazegenerator.generate()
         self.maze = self.mazegenerator.maze
         self.width = self.SIZE[0]
         self.height = self.SIZE[1]
-
-    def get_cells(self) -> Iterator[tuple[int, int, int]]:
-        """Yield coordinates and values for each cell in the maze.
-
-        Yields:
-            tuple[int, int, int]: (col, row, cell_value)
-                - col: X coordinate (horizontal).
-                - row: Y coordinate (vertical).
-                - cell_value: The 4-bit integer wall mask.
-        """
-        for row_idx, row in enumerate(self.maze):
-            for col_idx, cell_value in enumerate(row):
-                yield (row_idx, col_idx, cell_value)
 
     def can_move(self, x: int, y: int, direction: Direction) -> bool:
         cell_value = self.maze[y][x]
@@ -31,13 +18,13 @@ class MazeAdapter:
         bin_str = f"{cell_value:04b}"
 
         if direction == Direction.UP:
-            return bin_str[0] == "1"
+            return bin_str[3] == "0"
         elif direction == Direction.RIGHT:
-            return bin_str[1] == "1"
+            return bin_str[2] == "0"
         elif direction == Direction.DOWN:
-            return bin_str[2] == "1"
+            return bin_str[1] == "0"
         elif direction == Direction.LEFT:
-            return bin_str[3] == "1"
+            return bin_str[0] == "0"
 
         return False
 
@@ -60,4 +47,3 @@ class MazeAdapter:
 
     def is_walkable(self, x: int, y: int) -> bool:
         return self.maze[y][x] != 15
-    
