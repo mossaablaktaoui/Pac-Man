@@ -3,6 +3,8 @@ import sys
 import pygame
 from typing import Dict, List
 
+from src.core.cheats import CheatCode
+
 
 class HUD:
     """Manages loading and rendering game status boards and text."""
@@ -34,7 +36,7 @@ class HUD:
     def _load_boards(self):
         images_dir = "assets/images/boards"
         boards_config = [
-            ("top", (self.width // 2, 70)),
+            ("top", (self.width // 2, 60)),
             ("instructions", (self.width * 0.14, self.height // 2)),
             ("cheats", (self.width * 0.86, self.height // 2))
         ]
@@ -53,10 +55,10 @@ class HUD:
     def _load_onoff(self):
         icons_dir = "assets/images/icons"
         toggle_config = [
-            ("skip_level", (self.width * 0.91, self.height * 0.445)),
-            ("speed", (self.width * 0.91, self.height * 0.517)),
-            ("unlimited_lives", (self.width * 0.91, self.height * 0.59)),
-            ("freeze_ghosts", (self.width * 0.91, self.height * 0.665)),
+            (CheatCode.SKIP_LEVEL, (self.width * 0.91, self.height * 0.445)),
+            (CheatCode.SPEED, (self.width * 0.91, self.height * 0.517)),
+            (CheatCode.UNLIMITED_LIFE, (self.width * 0.91, self.height * 0.59)),
+            (CheatCode.FREEZE_GHOSTS, (self.width * 0.91, self.height * 0.665)),
         ]
         for toggle, cor in toggle_config:
             on_img = pygame.image.load(f"{icons_dir}/turn_on.png")
@@ -136,6 +138,7 @@ class HUD:
         self,
         score: int, lives: int,
         time_left: float, level: int,
+        cheats: List[CheatCode]
     ) -> None:
         """Draw all boards and center their dynamic text values.
 
@@ -155,5 +158,8 @@ class HUD:
         for board in self.boards:
             self.screen.blit(board["image"], board["rect"])
         for toggle in self.toggle_btns:
-            self.screen.blit(toggle["off"], toggle["rect"])
+            if toggle["name"] in cheats:
+                self.screen.blit(toggle["on"], toggle["rect"])
+            else:
+                self.screen.blit(toggle["off"], toggle["rect"])
         self.draw_board_text(score, lives, time_left, level)

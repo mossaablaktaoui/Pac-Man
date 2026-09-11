@@ -2,7 +2,7 @@ import pygame
 
 from src.core.engine import GameEngine
 
-TILE_SIZE = 40
+TILE_SIZE = 55
 MARGIN = 7
 
 

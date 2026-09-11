@@ -20,7 +20,7 @@ class Renderer:
         self.clock = pygame.time.Clock()
         self.engine = GameEngine()
         self.running = True
-        self.current_screen = "GAMEOVER"
+        self.current_screen = "MAIN"
         self.backgrounds: dict = {}
 
         monitor_sizes = pygame.display.get_desktop_sizes()
@@ -75,6 +75,7 @@ class Renderer:
                     action = self.main.handle_event(event)
                     if action == "start":
                         self.current_screen = "INGAME"
+                        self.engine.start_new_game()
                     elif action == "instructions":
                         self.current_screen = "INSTRUCTIONS"
                     elif action == "highscores":
@@ -107,7 +108,7 @@ class Renderer:
                     if action == "menu":
                         self.current_screen = "MAIN"
                     elif action == "replay":
-                        pass
+                        self.current_screen = "INGAME"
                     elif action == "resume":
                         self.current_screen = "INGAME"
                 elif self.current_screen == "VICTORY":
@@ -121,7 +122,7 @@ class Renderer:
                     if action == "menu":
                         self.current_screen = "MAIN"
                     elif action == "replay":
-                        pass
+                        self.current_screen = "INGAME"
 
             # 2. Draw active screen
             if self.current_screen == "MAIN":
@@ -152,6 +153,7 @@ class Renderer:
 
             # 3. Exactly ONE flip per frame
             pygame.display.flip()
+            self.engine.update(dt)
             dt = self.clock.tick(60) / 1000.0
 
         pygame.quit()

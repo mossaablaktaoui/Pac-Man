@@ -23,7 +23,7 @@ class GameEngine:
         self.gamestate = self.setup_game_state()
         self.cheats = Cheats(self.gamestate)
         self.highscoresmanager = HighscoreManager(self.config.highscore_filename)
-        self.next_direction = self.gamestate.pacman.direction
+        self.next_direction: Direction = self.gamestate.pacman.direction
         self.pacman_move_timer = 0.0
         self.ghost_manager = GhostManager(self.maze)
 
@@ -127,8 +127,8 @@ class GameEngine:
     def update(self, dt: float) -> None:
         # stop simulation if the game is paused or over.
         if (self.gamestate.is_paused
-            or self.gamestate.is_game_over
-            or self.gamestate.is_level_cleared):
+                or self.gamestate.is_game_over
+                or self.gamestate.is_level_cleared):
             return
 
         # stop the game when the time is over.

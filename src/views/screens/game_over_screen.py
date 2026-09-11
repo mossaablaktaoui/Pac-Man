@@ -67,6 +67,8 @@ class ScrGameOver:
                     if btn["name"] == "quit":
                         pygame.quit()
                         sys.exit(0)
+                    if btn["name"] == "reply":
+                        self.engine.start_new_game()
                     return btn["name"]
         return None
 
@@ -78,4 +80,5 @@ class ScrGameOver:
                 self.screen.blit(btn["hover"], btn["rect"])
             else:
                 self.screen.blit(btn["idle"], btn["rect"])
-        self.draw_score_text()
+        self.draw_score_text(self.engine.gamestate.score,
+                             self.engine.get_highscores()[0].get("score", 0))

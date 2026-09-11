@@ -43,12 +43,23 @@ class ScrPause:
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
         """Handle clicks. Returns the button name if clicked, else None."""
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_p:
+                self.engine.toggle_pause()
+                return "resume"
+            if event.key == pygame.K_r:
+                self.engine.start_new_game()
+                return "replay"
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for btn in self.buttons:
                 if btn["rect"].collidepoint(event.pos):
                     if btn["name"] == "quit":
                         pygame.quit()
                         sys.exit(0)
+                    if btn["name"] == "resume":
+                        self.engine.toggle_pause()
+                    if btn["name"] == "replay":
+                        self.engine.start_new_game()
                     return btn["name"]
         return None
 

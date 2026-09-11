@@ -8,7 +8,7 @@ from src.core.entities import (
     SpriteDT,
 )
 
-TILE_SIZE = 40
+TILE_SIZE = 55
 ASSETS_SIZE = TILE_SIZE - 10
 MARGIN = 7
 
