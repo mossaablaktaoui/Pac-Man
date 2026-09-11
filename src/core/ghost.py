@@ -57,7 +57,7 @@ class GhostManager:
         if ghost.state == GhostState.EATEN:
             target = self._get_spawn_position(ghost)
         elif ghost.state == GhostState.EDIBLE:
-            target = self.maze.get_random_cell()
+            target = self._get_flee_target(ghost, gamestate)
         else:
             pacman = gamestate.pacman
             target = (pacman.grid_x, pacman.grid_y)
@@ -144,3 +144,26 @@ class GhostManager:
         self.maze = maze
         self.move_timer = 0.0
         self.edible_timer = 0.0
+
+    def _get_flee_target(self, ghost: SpriteDT,
+                         gamestate: GameStateDT,) -> tuple[int, int]:
+        pacman = gamestate.pacman
+
+        best_cell = (ghost.grid_x, ghost.grid_y)
+        best_distance = -1
+
+        for y in range(self.maze.height):
+            for x in range(self.maze.width):
+                if not self.maze.is_walkable(x, y):
+                    continue
+
+                distance = (
+                    abs(x - pacman.grid_x)
+                    + abs(y - pacman.grid_y)
+                )
+
+                if distance > best_distance:
+                    best_distance = distance
+                    best_cell = (x, y)
+
+        return best_cell
