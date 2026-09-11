@@ -1,6 +1,7 @@
 from typing import Tuple, Iterator, List
 from mazegenerator import MazeGenerator
 from src.core.entities import Direction
+import random
 
 class MazeAdapter:
     SIZE = (19, 19)
@@ -10,6 +11,7 @@ class MazeAdapter:
         self.maze = self.mazegenerator.maze
         self.width = self.SIZE[0]
         self.height = self.SIZE[1]
+        self.seed = seed
 
     def can_move(self, x: int, y: int, direction: Direction) -> bool:
         cell_value = self.maze[y][x]
@@ -47,3 +49,19 @@ class MazeAdapter:
     def is_walkable(self, x: int, y: int) -> bool:
         return self.maze[y][x] != 15
     
+    def create_random_maze(self) -> None:
+        random_seed = random.randint(1, 100)
+        self.mazegenerator = MazeGenerator(size=self.SIZE, seed=random_seed)
+        self.maze = self.mazegenerator.maze
+
+    def reset(self):
+        self.mazegenerator = MazeGenerator(size=self.SIZE, seed=self.seed)
+        self.maze = self.mazegenerator.maze
+
+    def get_random_cell(self) -> tuple[int, int]:
+        while True:
+            x = random.randrange(self.width)
+            y = random.randrange(self.height)
+
+            if self.is_walkable(x, y):
+                return x, y

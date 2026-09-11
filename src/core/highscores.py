@@ -68,6 +68,10 @@ class HighscoreManager:
                 "Cannot save high scores"
             ) from error
 
-    def get_top_10(self) -> list[dict[str, Any]]:
+    def get_highscores(self) -> list[dict[str, Any]]:
         """Return the top 10 highscores."""
         return self.scores[:10]
+
+    def get_highscore(self) -> int:
+        scores = self.highscoresmanager.get_highscores()
+        return scores[0]["score"] if scores else 0

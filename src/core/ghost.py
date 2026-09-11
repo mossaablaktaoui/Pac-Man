@@ -56,6 +56,8 @@ class GhostManager:
                     gamestate: GameStateDT) -> None:
         if ghost.state == GhostState.EATEN:
             target = self._get_spawn_position(ghost)
+        elif ghost.state == GhostState.EDIBLE:
+            target = self.maze.get_random_cell()
         else:
             pacman = gamestate.pacman
             target = (pacman.grid_x, pacman.grid_y)
@@ -137,3 +139,8 @@ class GhostManager:
             current = parent[current]
 
         return current
+
+    def reset(self, maze: MazeAdapter) -> None:
+        self.maze = maze
+        self.move_timer = 0.0
+        self.edible_timer = 0.0
