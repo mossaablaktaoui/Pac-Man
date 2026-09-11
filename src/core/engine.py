@@ -16,6 +16,8 @@ from src.core.entities import (
 
 
 class GameEngine:
+    MAX_LEVELS = 10
+
     def __init__(self) -> None:
         self.config = Config()
 
@@ -83,21 +85,19 @@ class GameEngine:
         for x, y in super_positions:
             pacgums.append(PacgumDT(x, y, True))
 
-        remaining = self.config.pacgum - 4
+        walkable_cells = []
 
         for y in range(height):
             for x in range(width):
-                if remaining <= 0:
-                    break
+                if (self.maze.is_walkable(x, y)
+                    and (x, y) not in super_positions):
 
-                if (x, y) in super_positions:
-                    continue
+                    walkable_cells.append((x, y))
 
-                if not self.maze.is_walkable(x, y):
-                    continue
-
-                pacgums.append(PacgumDT(x, y, False))
-                remaining -= 1
+        remaining = min(self.config.pacgum - 4,
+                        len(walkable_cells))
+        for x, y in random.sample(walkable_cells, remaining):
+            pacgums.append(PacgumDT(x, y, False))
 
         gamestate = GameStateDT(
             level=1,
@@ -119,16 +119,21 @@ class GameEngine:
 
     def start_new_game(self) -> None:
         """Reset scores, lives, level count, and spawn entities."""
+        self.maze.reset()
         self.gamestate = self.setup_game_state()
+
         self.cheats.gamestate = self.gamestate
         self.next_direction = self.gamestate.pacman.direction
         self.pacman_move_timer = 0.0
 
+        self.ghost_manager.reset(self.maze)
+
     def update(self, dt: float) -> None:
         # stop simulation if the game is paused or over.
         if (self.gamestate.is_paused
-                or self.gamestate.is_game_over
-                or self.gamestate.is_level_cleared):
+            or self.gamestate.is_game_over
+            or self.gamestate.is_victory
+            or self.gamestate.is_level_cleared):
             return
 
         # stop the game when the time is over.
@@ -155,6 +160,10 @@ class GameEngine:
 
         # check for being pacman and a ghost in the same cell to end the game.
         self._check_ghost_collision()
+        
+        # Go to next level when is cleared
+        if self.gamestate.is_level_cleared:
+            self.start_next_level()
 
     def set_player_direction(self, direction: Direction) -> None:
         """Queue the next intended direction for Pac-Man."""
@@ -169,6 +178,9 @@ class GameEngine:
         """Toggle a cheat feature."""
         self.cheats.toggle(cheat_code)
 
+        if cheat_code == CheatCode.SKIP_LEVEL:
+            self.start_next_level()
+
     def get_state(self) -> GameStateDT:
         """Return the current game state."""
         return self.gamestate
@@ -179,7 +191,11 @@ class GameEngine:
 
     def get_highscores(self) -> List[Dict[str, Any]]:
         """Return the top 10 highscores."""
-        return self.highscoresmanager.get_top_10()
+        return self.highscoresmanager.get_highscores()
+
+    def get_highscore(self) -> List[Dict[str, Any]]:
+        """Return the top highscore."""
+        return self.highscoresmanager.get_highscore()
 
     def save_highscore(self, name: str) -> None:
         """Save the current game score."""
@@ -231,8 +247,6 @@ class GameEngine:
             self.gamestate.is_level_cleared = True
 
     def _check_ghost_collision(self) -> None:
-        if self.cheats.is_active(CheatCode.UNLIMITED_LIFE):
-            return
 
         pacman = self.gamestate.pacman
 
@@ -247,6 +261,9 @@ class GameEngine:
 
                 if ghost.state == GhostState.EATEN:
                     continue
+
+                if self.cheats.is_active(CheatCode.UNLIMITED_LIFE):
+                    return
 
                 self.gamestate.lives -= 1
 
@@ -275,15 +292,20 @@ class GameEngine:
             ghost.grid_y = y
             ghost.state = GhostState.NORMAL
 
-        self.ghost_manager = GhostManager(self.maze)
+        self.ghost_manager.reset(self.maze)
         return
 
     def start_next_level(self) -> None:
+        if self.gamestate.level >= self.MAX_LEVELS:
+            self.gamestate.is_level_cleared = False
+            self.gamestate.is_victory = True
+            return
+
         old_score = self.gamestate.score
         old_lives = self.gamestate.lives
         next_level = self.gamestate.level + 1
 
-        self.maze = MazeAdapter(random.randint(1, 100))
+        self.maze.create_random_maze()
         self.gamestate = self.setup_game_state()
 
         self.gamestate.score = old_score
@@ -294,6 +316,6 @@ class GameEngine:
         self.next_direction = self.gamestate.pacman.direction
         self.pacman_move_timer = 0.0
 
-        self.ghost_manager = GhostManager(self.maze)
+        self.ghost_manager.reset(self.maze)
 
         return

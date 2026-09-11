@@ -51,6 +51,7 @@ class SrcInGame:
                 self.engine.set_player_direction(Direction.RIGHT)
             if event.key == pygame.K_k:
                 self.engine.toggle_cheat(CheatCode.SKIP_LEVEL)
+                self.maze_surface = self.maze_renderer.draw()
             if event.key == pygame.K_l:
                 self.engine.toggle_cheat(CheatCode.SPEED)
             if event.key == pygame.K_h:
@@ -58,6 +59,7 @@ class SrcInGame:
             if event.key == pygame.K_j:
                 self.engine.toggle_cheat(CheatCode.FREEZE_GHOSTS)
         if self.engine.gamestate.is_game_over:
+            # self.engine.save_highscore()
             action = "gameover"
         if self.engine.gamestate.is_victory:
             action = "victory"

@@ -80,6 +80,7 @@ class MazeRenderer:
 
     def _render_maze(self) -> pygame.surface.Surface:
         """Draw all walls onto the cached surface one time."""
+        self.grid = self.engine.get_wall_matrix()
         self.maze_surface.fill((20, 40, 180, 80))
         for row_idx, row in enumerate(self.grid):
             for col_idx, cell_value in enumerate(row):
@@ -91,4 +92,4 @@ class MazeRenderer:
     def draw(self) -> pygame.Surface:
         """Instantly return the pre-rendered surface
         (runs at 60 FPS without lag)."""
-        return self.maze_surface
+        return self._render_maze()
