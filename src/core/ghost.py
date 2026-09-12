@@ -73,7 +73,9 @@ class GhostManager:
             if other is ghost:
                 continue
 
-            if (other.grid_x, other.grid_y) == next_cell:
+            if ((ghost.state != GhostState.EATEN
+                or other.state != GhostState.EATEN)
+                and (other.grid_x, other.grid_y) == next_cell):
                 return
 
         next_x, next_y = next_cell
