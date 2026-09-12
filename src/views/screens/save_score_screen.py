@@ -31,6 +31,12 @@ class ScrSaveScore:
         text_rect.center = (int(self.width * 0.5), int(self.height * 0.52))
         self.screen.blit(text_surf, text_rect)
 
+        score_surf = self.font.render(
+            str(self.engine.gamestate.score), True, (255, 255, 255))
+        score_rect = score_surf.get_rect()
+        score_rect.center = (int(self.width * 0.53), int(self.height * 0.475))
+        self.screen.blit(score_surf, score_rect)
+
     def handle_event(self, event: pygame.event.Event) -> str | None:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
