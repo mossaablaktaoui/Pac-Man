@@ -28,7 +28,7 @@ class ScrSaveScore:
     def draw_name_text(self) -> None:
         text_surf = self.font.render(self.user_text, True, (255, 255, 255))
         text_rect = text_surf.get_rect()
-        text_rect.center = (int(self.width * 0.6), int(self.height * 0.4))
+        text_rect.center = (int(self.width * 0.5), int(self.height * 0.52))
         self.screen.blit(text_surf, text_rect)
 
     def handle_event(self, event: pygame.event.Event) -> str | None:

@@ -49,7 +49,7 @@ class MazeAdapter:
 
     def is_walkable(self, x: int, y: int) -> bool:
         return self.maze[y][x] != 15
-    
+
     def create_random_maze(self) -> None:
         random_seed = random.randint(1, 100)
         self.mazegenerator = MazeGenerator(size=self.SIZE, seed=random_seed)
