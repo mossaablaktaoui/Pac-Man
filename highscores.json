@@ -1,7 +1,8 @@
 [
     {
         "name": "modpro1",
-        "score": 24070
+        "score": 240700000000
+    },
     {
         "name": "lako",
         "score": 9840
@@ -9,6 +10,10 @@
     {
         "name": "IN",
         "score": 4180
+    },
+    {
+        "name": "hhh",
+        "score": 2770
     },
     {
         "name": "sad",
@@ -19,26 +24,19 @@
         "score": 1920
     },
     {
+        "name": "mossaablak",
+        "score": 1350
+    },
+    {
         "name": "abdo",
         "score": 1320
     },
     {
+        "name": "maze",
+        "score": 1040
+    },
+    {
         "name": "glfkdn",
         "score": 840
-    },
-    {
-        "name": "ksdgfhpk",
-        "score": 480
-<<<<<<< HEAD
-    },
-    {
-        "name": "jhvg",
-        "score": 120
-    },
-    {
-        "name": "mossaablak",
-        "score": 120
-=======
->>>>>>> refs/remotes/origin/newer
     }
 ]

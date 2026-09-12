@@ -154,13 +154,11 @@ class GameEngine:
             self._move_pacman()
             self.pacman_move_timer = 0.0
             self._collect_pacgum()
+            self._check_ghost_collision()
 
         # update ghosts state while they are not freezed.
         if not self.cheats.is_active(CheatCode.FREEZE_GHOSTS):
             self.ghost_manager.update(self.gamestate, dt)
-
-        # check for being pacman and a ghost in the same cell to end the game.
-        self._check_ghost_collision()
 
         # Go to next level when is cleared
         if self.gamestate.is_level_cleared:
@@ -258,6 +256,7 @@ class GameEngine:
                 if ghost.state == GhostState.EDIBLE:
                     self.gamestate.score += self.config.points_per_ghost
                     ghost.state = GhostState.EATEN
+                    self.ghost_manager.eaten_timers[ghost.id] = 5.0
                     return
 
                 if ghost.state == GhostState.EATEN:
@@ -275,7 +274,7 @@ class GameEngine:
                 self._reset_positions()
                 return
 
-    def _reset_positions(self):
+    def _reset_positions(self) -> None:
         pacman = self.gamestate.pacman
 
         pacman.grid_x = self.gamestate.grid_width // 2
