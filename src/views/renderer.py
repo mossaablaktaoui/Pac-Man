@@ -16,6 +16,26 @@ from src.views.screens import (
 IMAGES = "assets/images"
 
 
+class CrossHair(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load(f"{IMAGES}/icons/crosshair.png")
+        self.sound = pygame.mixer.Sound("assets/sounds/crosshair.mp3")
+        self.image = pygame.transform.scale(self.image, (80, 80))
+        self.rect = self.image.get_rect()
+        self.group = pygame.sprite.Group()
+        self.group.add(self)
+
+    def click(self):
+        self.sound.play()
+
+    def draw(self, surface: pygame.Surface):
+        self.group.draw(surface)
+
+    def update(self):
+        self.rect.center = pygame.mouse.get_pos()
+
+
 class Renderer:
     def __init__(
         self,
@@ -24,10 +44,12 @@ class Renderer:
     ) -> None:
         pygame.init()
         pygame.mixer.init()
+        pygame.mouse.set_visible(False)
         self.clock = pygame.time.Clock()
         self.engine = GameEngine()
         self.running = True
         self.current_screen = "MAIN"
+        self.current_level = self.engine.gamestate.level
         self.backgrounds: dict[str, pygame.Surface] = {}
 
         monitor_sizes = pygame.display.get_desktop_sizes()
@@ -49,6 +71,8 @@ class Renderer:
         self.overlay.fill((0, 0, 0, 140))
         self.blurred_surface: pygame.Surface | None = None
 
+        self.crosshair = CrossHair()
+
         # Screens instantiation
         self.ingame = SrcInGame(self.screen, self.engine)
         self.main = SrcMainMenu(self.screen, self.engine)
@@ -59,6 +83,7 @@ class Renderer:
         self.gameover = ScrGameOver(self.screen, self.engine)
         self.save_score = ScrSaveScore(self.screen, self.engine)
 
+        self.maze_renderer = self.ingame.maze_renderer
         self._load_backgrounds()
 
     def _load_backgrounds(self) -> None:
@@ -91,6 +116,7 @@ class Renderer:
                     action = self.main.handle_event(event)
                     if action == "start":
                         self.engine.start_new_game()
+                        self.maze_surface = self.maze_renderer.draw()
                         self.current_screen = "INGAME"
                     elif action == "instructions":
                         self.current_screen = "INSTRUCTIONS"
@@ -112,6 +138,7 @@ class Renderer:
                     elif action in ("resume", "replay"):
                         if action == "replay":
                             self.engine.start_new_game()
+                            self.maze_surface = self.maze_renderer.draw()
                         self.current_screen = "INGAME"
 
                 elif self.current_screen == "SAVE":
@@ -132,6 +159,7 @@ class Renderer:
                         self.current_screen = "MAIN"
                     elif action == "start":
                         self.engine.start_new_game()
+                        self.maze_surface = self.maze_renderer.draw()
                         self.current_screen = "INGAME"
                 elif self.current_screen == "VICTORY":
                     action = self.victory.handle_event(event)
@@ -145,10 +173,13 @@ class Renderer:
                         self.current_screen = "MAIN"
                     elif action == "replay":
                         self.engine.start_new_game()
+                        self.maze_surface = self.maze_renderer.draw()
                         self.current_screen = "INGAME"
 
             # 2. STATE CHECKS & LOGIC UPDATE
             if self.current_screen == "INGAME":
+                if self.current_level != self.engine.gamestate.level:
+                    self.maze_surface = self.maze_renderer.draw()
                 if (self.engine.gamestate.is_game_over or
                         self.engine.gamestate.is_victory):
                     self.save_score.user_text = ""
@@ -156,8 +187,6 @@ class Renderer:
                     self.current_screen = "SAVE"
                 elif not self.engine.gamestate.is_paused:
                     self.engine.update(dt)
-                if self.engine.gamestate.is_level_cleared:
-                    self.ingame.maze_renderer.draw()
 
             # 3. DRAWING
             if self.current_screen == "MAIN":
@@ -187,6 +216,13 @@ class Renderer:
                     self.pause.draw()
                 else:
                     self.save_score.draw()
+
+            if self.current_screen != "INGAME":
+                self.crosshair.draw(self.screen)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.crosshair.click()
+
+                self.crosshair.update()
 
             pygame.display.flip()
             dt = self.clock.tick(60) / 1000.0

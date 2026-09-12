@@ -6,6 +6,7 @@ from src.core.entities import (
     GameStateDT,
     GhostState,
     SpriteDT,
+    PacgumDT,
 )
 
 TILE_SIZE = 55
@@ -38,11 +39,20 @@ class SpriteView:
         self._load_pacman_assets()
         self._load_ghost_assets()
 
-    def grid_to_pixel(self, grid_x: int, grid_y: int) -> tuple[int, int]:
+    def grid_to_pixel(self, entity: SpriteDT | PacgumDT) -> tuple[int, int]:
         """Convert maze grid coordinates to centered
         screen pixel coordinates."""
-        px = (self.xoffset + MARGIN + grid_x * TILE_SIZE + TILE_SIZE // 2)
-        py = (self.yoffset + MARGIN + grid_y * TILE_SIZE + TILE_SIZE // 2)
+        if isinstance(entity, SpriteDT):
+            x_offset = 0  # entity.pixel_offset_x
+            y_offset = 0  # entity.pixel_offset_y
+        else:
+            x_offset = 0
+            y_offset = 0
+
+        x = entity.grid_x + x_offset
+        y = entity.grid_y + y_offset
+        px = (self.xoffset + MARGIN + x * TILE_SIZE + TILE_SIZE // 2)
+        py = (self.yoffset + MARGIN + y * TILE_SIZE + TILE_SIZE // 2)
         return px, py
 
     def _load_pacman_assets(self) -> None:
@@ -131,7 +141,7 @@ class SpriteView:
     def _draw_pacgums(self, state: GameStateDT) -> None:
         pellet_color = (255, 184, 151)
         for pellet in state.pacgums:
-            center = self.grid_to_pixel(pellet.grid_x, pellet.grid_y)
+            center = self.grid_to_pixel(pellet)
             if pellet.is_super:
                 radius = 8 if (self.move_frame % 2 == 0) else 6
                 pygame.draw.circle(self.screen, pellet_color, center, radius)
@@ -139,7 +149,7 @@ class SpriteView:
                 pygame.draw.circle(self.screen, pellet_color, center, 3)
 
     def _draw_pacman(self, pac: SpriteDT, dt: float) -> None:
-        center = self.grid_to_pixel(pac.grid_x, pac.grid_y)
+        center = self.grid_to_pixel(pac)
 
         if pac.state == "DEAD":
             self.death_frame_idx += dt * 13.0
@@ -155,7 +165,7 @@ class SpriteView:
 
     def _draw_ghosts(self, ghosts: list[SpriteDT]) -> None:
         for ghost in ghosts:
-            center = self.grid_to_pixel(ghost.grid_x, ghost.grid_y)
+            center = self.grid_to_pixel(ghost)
             dir_key = ghost.direction.value.lower()
             state_str = (
                 ghost.state.value
