@@ -54,7 +54,12 @@ class ScrHighscores:
         name_xpos = self.width * 0.45
         for i, score in enumerate(self.scores):
             y_ratio = 0.346 + i * 0.048
-            color = (255, 215, 0) if i == 0 else (255, 255, 255)
+            color = (
+                (255, 215, 0) if i == 0 else
+                (192, 192, 192) if i == 1 else
+                (205, 127, 50) if i == 2 else
+                (255, 255, 255)
+            )
 
             name_surf = self.font.render(score["name"], True, color)
             name_rect = name_surf.get_rect()

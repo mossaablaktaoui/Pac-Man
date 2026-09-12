@@ -55,8 +55,6 @@ class HUD:
     def _load_onoff(self) -> None:
         icons_dir = "assets/images/icons"
         toggle_config = [
-            (CheatCode.SKIP_LEVEL,
-                (self.width * 0.91, self.height * 0.445)),
             (CheatCode.SPEED,
                 (self.width * 0.91, self.height * 0.517)),
             (CheatCode.UNLIMITED_LIFE,
