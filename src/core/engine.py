@@ -24,7 +24,8 @@ class GameEngine:
         self.maze = MazeAdapter(self.config.seed)
         self.gamestate = self.setup_game_state()
         self.cheats = Cheats(self.gamestate)
-        self.highscoresmanager = HighscoreManager(self.config.highscore_filename)
+        self.highscoresmanager = HighscoreManager(
+            self.config.highscore_filename)
         self.next_direction: Direction = self.gamestate.pacman.direction
         self.pacman_move_timer = 0.0
         self.ghost_manager = GhostManager(self.maze)
@@ -90,7 +91,7 @@ class GameEngine:
         for y in range(height):
             for x in range(width):
                 if (self.maze.is_walkable(x, y)
-                    and (x, y) not in super_positions):
+                        and (x, y) not in super_positions):
 
                     walkable_cells.append((x, y))
 
@@ -131,9 +132,9 @@ class GameEngine:
     def update(self, dt: float) -> None:
         # stop simulation if the game is paused or over.
         if (self.gamestate.is_paused
-            or self.gamestate.is_game_over
-            or self.gamestate.is_victory
-            or self.gamestate.is_level_cleared):
+                or self.gamestate.is_game_over
+                or self.gamestate.is_victory
+                or self.gamestate.is_level_cleared):
             return
 
         # stop the game when the time is over.
@@ -160,7 +161,7 @@ class GameEngine:
 
         # check for being pacman and a ghost in the same cell to end the game.
         self._check_ghost_collision()
-        
+
         # Go to next level when is cleared
         if self.gamestate.is_level_cleared:
             self.start_next_level()
@@ -193,7 +194,7 @@ class GameEngine:
         """Return the top 10 highscores."""
         return self.highscoresmanager.get_highscores()
 
-    def get_highscore(self) -> List[Dict[str, Any]]:
+    def get_highscore(self) -> int:
         """Return the top highscore."""
         return self.highscoresmanager.get_highscore()
 

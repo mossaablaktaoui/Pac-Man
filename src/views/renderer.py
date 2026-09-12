@@ -156,6 +156,8 @@ class Renderer:
                     self.current_screen = "SAVE"
                 elif not self.engine.gamestate.is_paused:
                     self.engine.update(dt)
+                if self.engine.gamestate.is_level_cleared:
+                    self.ingame.maze_renderer.draw()
 
             # 3. DRAWING
             if self.current_screen == "MAIN":
@@ -166,6 +168,7 @@ class Renderer:
                 self.ingame.draw(dt)
             elif self.current_screen == "HIGHSCORES":
                 self.screen.blit(self.backgrounds["highscores"], (0, 0))
+                self.highscores.refresh()
                 self.highscores.draw()
             elif self.current_screen == "INSTRUCTIONS":
                 self.screen.blit(self.backgrounds["instructions"], (0, 0))

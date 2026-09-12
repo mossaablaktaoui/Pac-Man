@@ -2,10 +2,21 @@
     {
         "name": "modpro1",
         "score": 24070
-    },
     {
         "name": "lako",
         "score": 9840
+    },
+    {
+        "name": "IN",
+        "score": 4180
+    },
+    {
+        "name": "sad",
+        "score": 2640
+    },
+    {
+        "name": "loka",
+        "score": 1920
     },
     {
         "name": "abdo",
@@ -18,6 +29,7 @@
     {
         "name": "ksdgfhpk",
         "score": 480
+<<<<<<< HEAD
     },
     {
         "name": "jhvg",
@@ -26,5 +38,7 @@
     {
         "name": "mossaablak",
         "score": 120
+=======
+>>>>>>> refs/remotes/origin/newer
     }
 ]
