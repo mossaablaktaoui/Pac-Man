@@ -31,7 +31,7 @@ class SrcMainMenu:
         self._load_pacman()
         self._load_ghosts()
 
-    def _load_pacman(self):
+    def _load_pacman(self) -> None:
         for i in range(1, 5):
             img = pygame.image.load(f"{PACMAN_DIR}/pacman{i}.png"
                                     ).convert_alpha()
@@ -41,7 +41,7 @@ class SrcMainMenu:
         self.pacman_rect.center = (int(self.width * 0.23),
                                    int(self.height * 0.62))
 
-    def _load_buttons(self):
+    def _load_buttons(self) -> None:
         button_configs = [
             ("start", 0.35),
             ("instructions", 0.47),
@@ -121,7 +121,7 @@ class SrcMainMenu:
                     if btn["name"] == "quit":
                         pygame.quit()
                         sys.exit(0)
-                    return btn["name"]
+                    return str(btn["name"])
         return None
 
     def draw(self) -> None:

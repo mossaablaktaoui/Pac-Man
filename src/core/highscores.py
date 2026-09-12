@@ -54,7 +54,7 @@ class HighscoreManager:
             }
         )
 
-        self.scores.sort( key=lambda item: item["score"], reverse=True)
+        self.scores.sort(key=lambda item: item["score"], reverse=True)
         self.scores = self.scores[:10]
         return True
 

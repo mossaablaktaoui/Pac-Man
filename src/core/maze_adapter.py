@@ -55,7 +55,7 @@ class MazeAdapter:
         self.mazegenerator = MazeGenerator(size=self.SIZE, seed=random_seed)
         self.maze = self.mazegenerator.maze
 
-    def reset(self):
+    def reset(self) -> None:
         self.mazegenerator = MazeGenerator(size=self.SIZE, seed=self.seed)
         self.maze = self.mazegenerator.maze
 

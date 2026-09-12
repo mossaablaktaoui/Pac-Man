@@ -18,7 +18,7 @@ class ScrInstructions:
         self.buttons: List[Dict] = []
         self._load_buttons()
 
-    def _load_buttons(self):
+    def _load_buttons(self) -> None:
         buttons_dir = "assets/images/buttons"
         buttons_config = [
             ("start", 0.5, (0.89, 0.081)),
@@ -47,7 +47,7 @@ class ScrInstructions:
                     if btn["name"] == "quit":
                         pygame.quit()
                         sys.exit(0)
-                    return btn["name"]
+                    return str(btn["name"])
         return None
 
     def draw(self) -> None:

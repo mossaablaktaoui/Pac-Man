@@ -33,7 +33,8 @@ class GhostManager:
 
             # check if a ghost was eaten and it go back to spawn position
             if ghost.state == GhostState.EATEN:
-                if (ghost.grid_x, ghost.grid_y) == self._get_spawn_position(ghost):
+                if ((ghost.grid_x, ghost.grid_y) ==
+                        self._get_spawn_position(ghost)):
                     ghost.state = GhostState.NORMAL
         return
 
@@ -103,7 +104,7 @@ class GhostManager:
                 valid_directions.append(direction)
 
         return valid_directions
-     
+
     def make_edible(self, gamestate: GameStateDT) -> None:
         self.edible_timer = 8.0
 

@@ -275,7 +275,7 @@ class GameEngine:
                 self._reset_positions()
                 return
 
-    def _reset_positions(self):
+    def _reset_positions(self) -> None:
         pacman = self.gamestate.pacman
 
         pacman.grid_x = self.gamestate.grid_width // 2

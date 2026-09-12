@@ -18,7 +18,7 @@ class ScrPause:
         self.buttons: List[Dict] = []
         self._load_buttons()
 
-    def _load_buttons(self):
+    def _load_buttons(self) -> None:
         buttons_dir = "assets/images/buttons"
         buttons_config = [
             ("resume", 0.5, (0.5, 0.305)),
@@ -60,7 +60,7 @@ class ScrPause:
                         self.engine.toggle_pause()
                     if btn["name"] == "replay":
                         self.engine.start_new_game()
-                    return btn["name"]
+                    return str(btn["name"])
         return None
 
     def draw(self) -> None:

@@ -9,7 +9,7 @@ from src.core.cheats import CheatCode
 class HUD:
     """Manages loading and rendering game status boards and text."""
 
-    def __init__(self, screen) -> None:
+    def __init__(self, screen: pygame.Surface) -> None:
         """Initialize fonts and preload all board panels.
 
         Args:
@@ -33,7 +33,7 @@ class HUD:
         self._load_boards()
         self._load_onoff()
 
-    def _load_boards(self):
+    def _load_boards(self) -> None:
         images_dir = "assets/images/boards"
         boards_config = [
             ("top", (self.width // 2, 60)),
@@ -52,7 +52,7 @@ class HUD:
                 "rect": rect
             })
 
-    def _load_onoff(self):
+    def _load_onoff(self) -> None:
         icons_dir = "assets/images/icons"
         toggle_config = [
             (CheatCode.SKIP_LEVEL,
@@ -78,7 +78,7 @@ class HUD:
                 "rect": rect
             })
 
-    def _load_buttons(self):
+    def _load_buttons(self) -> None:
         buttons_dir = "assets/images/buttons"
         buttons_config = [
             ("pause", 0.75, (0.86, 0.081)),
@@ -135,7 +135,7 @@ class HUD:
                     if btn["name"] == "quit":
                         pygame.quit()
                         sys.exit(0)
-                    return btn["name"]
+                    return str(btn["name"])
         return None
 
     def draw(
