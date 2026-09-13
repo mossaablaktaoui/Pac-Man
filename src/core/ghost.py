@@ -1,13 +1,21 @@
 from src.core.maze_adapter import MazeAdapter
 from src.core.entities import GameStateDT, SpriteDT, Direction, GhostState
 from collections import deque
+import random
 
 
 class GhostManager:
     def __init__(self, maze: MazeAdapter) -> None:
         self.maze = maze
         self.move_timer = 0.0
+        self.edible_move_timer = 0.0
         self.edible_timer = 0.0
+        self.eaten_timers = {
+            "blinky": 0.0,
+            "pinky": 0.0,
+            "inky": 0.0,
+            "clyde": 0.0,
+        }
 
     def update(self, gamestate: GameStateDT, dt: float) -> None:
         """Update ghost movement."""
@@ -20,22 +28,39 @@ class GhostManager:
                     if ghost.state != GhostState.EATEN:
                         ghost.state = GhostState.NORMAL
 
-        # to control the moving so not a step every frame.
-        self.move_timer += dt
-        if self.move_timer < 0.3:
-            return
-
-        self.move_timer = 0.0
-
-        # move all ghosts when a step comes.
         for ghost in gamestate.ghosts:
-            self._move_ghost(ghost, gamestate)
-
             # check if a ghost was eaten and it go back to spawn position
             if ghost.state == GhostState.EATEN:
-                if ((ghost.grid_x, ghost.grid_y) ==
-                        self._get_spawn_position(ghost)):
-                    ghost.state = GhostState.NORMAL
+                self.eaten_timers[ghost.id] -= dt
+
+                if self.eaten_timers[ghost.id] <= 0.0:
+                    self.eaten_timers[ghost.id] = 0.0
+
+                    if (
+                        ghost.grid_x,
+                        ghost.grid_y,
+                    ) == self._get_spawn_position(ghost):
+                        ghost.state = GhostState.NORMAL
+
+        # to control the moving so not a step every frame.
+        # Normal ghosts move faster.
+        self.move_timer += dt
+        self.edible_move_timer += dt
+
+        if self.move_timer >= 0.4:
+            for ghost in gamestate.ghosts:
+                if ghost.state in (GhostState.NORMAL, GhostState.EATEN):
+                    self._move_ghost(ghost, gamestate)
+
+            self.move_timer = 0.0
+
+        if self.edible_move_timer >= 0.7:
+            for ghost in gamestate.ghosts:
+                if ghost.state == GhostState.EDIBLE:
+                    self._move_ghost(ghost, gamestate)
+
+            self.edible_move_timer = 0.0
+
         return
 
     def _get_spawn_position(self, ghost: SpriteDT) -> tuple[int, int]:
@@ -55,17 +80,30 @@ class GhostManager:
 
     def _move_ghost(self, ghost: SpriteDT,
                     gamestate: GameStateDT) -> None:
+
+        start = (ghost.grid_x, ghost.grid_y)
+
         if ghost.state == GhostState.EATEN:
             target = self._get_spawn_position(ghost)
+            next_cell = self._bfs_next_step(start, target)
+
         elif ghost.state == GhostState.EDIBLE:
             target = self._get_flee_target(ghost, gamestate)
+            next_cell = self._bfs_next_step(start, target)
+
         else:
             pacman = gamestate.pacman
-            target = (pacman.grid_x, pacman.grid_y)
 
-        next_cell = self._bfs_next_step(
-            (ghost.grid_x, ghost.grid_y),
-            target)
+            if ghost.id == "blinky":
+                target = (pacman.grid_x, pacman.grid_y)
+                next_cell = self._bfs_next_step(start, target)
+
+            elif ghost.id == "pinky" or ghost.id == "clyde":
+                next_cell = self._random_next_step(ghost)
+
+            else: # "inky"
+                target = self._get_predicted_target(gamestate)
+                next_cell = self._bfs_next_step(start, target)
 
         if next_cell is None:
             return
@@ -74,7 +112,9 @@ class GhostManager:
             if other is ghost:
                 continue
 
-            if (other.grid_x, other.grid_y) == next_cell:
+            if (ghost.state != GhostState.EATEN
+                    and other.state != GhostState.EATEN
+                    and (other.grid_x, other.grid_y) == next_cell):
                 return
 
         next_x, next_y = next_cell
@@ -148,10 +188,57 @@ class GhostManager:
 
         return current
 
+    def _random_next_step(self, ghost: SpriteDT,
+                        ) -> tuple[int, int] | None:
+        """Move forward, choose randomly when blocked."""
+        x = ghost.grid_x
+        y = ghost.grid_y
+
+        if self.maze.can_move(x, y, ghost.direction):
+            if ghost.direction == Direction.UP:
+                return x, y - 1
+            if ghost.direction == Direction.DOWN:
+                return x, y + 1
+            if ghost.direction == Direction.LEFT:
+                return x - 1, y
+            if ghost.direction == Direction.RIGHT:
+                return x + 1, y
+
+        neighbors = self.maze.get_neighbors(x, y)
+
+        if not neighbors:
+            return None
+
+        return random.choice(neighbors)
+
+    def _get_predicted_target(self,
+                        gamestate: GameStateDT,) -> tuple[int, int]:
+        """Return a cell up to 20 steps ahead of Pac-Man."""
+        pacman = gamestate.pacman
+
+        x = pacman.grid_x
+        y = pacman.grid_y
+
+        for _ in range(20):
+            if not self.maze.can_move(x, y, pacman.direction):
+                break
+
+            if pacman.direction == Direction.UP:
+                y -= 1
+            elif pacman.direction == Direction.DOWN:
+                y += 1
+            elif pacman.direction == Direction.LEFT:
+                x -= 1
+            elif pacman.direction == Direction.RIGHT:
+                x += 1
+
+        return x, y
+
     def reset(self, maze: MazeAdapter) -> None:
         self.maze = maze
         self.move_timer = 0.0
         self.edible_timer = 0.0
+        self.edible_move_timer = 0.0
 
     def _get_flee_target(self, ghost: SpriteDT,
                          gamestate: GameStateDT,) -> tuple[int, int]:

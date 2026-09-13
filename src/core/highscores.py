@@ -18,12 +18,27 @@ class HighscoreManager:
             with open(self.filename, "r") as file:
                 data = json.load(file)
 
-            if isinstance(data, list):
-                self.scores = data
-            else:
+            if not isinstance(data, list):
                 raise HighscoreManagerError(
                     "High scores file must contain a JSON list"
                 )
+
+            for item in data:
+                if (
+                    not isinstance(item, dict)
+                    or not self.validate_name(item.get("name", ""))
+                    or not isinstance(item.get("score"), int)
+                    or item["score"] < 0
+                ):
+                    raise HighscoreManagerError(
+                        "Invalid highscore entry"
+                    )
+
+            self.scores = sorted(
+                data,
+                key=lambda item: item["score"],
+                reverse=True,
+            )[:10]
 
         except FileNotFoundError:
             self.scores = []
@@ -70,7 +85,7 @@ class HighscoreManager:
 
     def get_highscores(self) -> list[dict[str, Any]]:
         """Return the top 10 highscores."""
-        return self.scores[:10]
+        return self.scores
 
     def get_highscore(self) -> int:
         scores = self.get_highscores()

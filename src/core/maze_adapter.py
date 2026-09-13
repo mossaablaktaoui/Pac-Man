@@ -9,7 +9,7 @@ class MazeAdapter:
 
     def __init__(self, seed: int):
         self.mazegenerator = MazeGenerator(size=self.SIZE, seed=seed)
-        self.maze = self.mazegenerator.maze
+        self.maze: list[list[int]] = self.mazegenerator.maze
         self.width = self.SIZE[0]
         self.height = self.SIZE[1]
         self.seed = seed
@@ -51,8 +51,7 @@ class MazeAdapter:
         return self.maze[y][x] != 15
 
     def create_random_maze(self) -> None:
-        random_seed = random.randint(1, 100)
-        self.mazegenerator = MazeGenerator(size=self.SIZE, seed=random_seed)
+        self.mazegenerator = MazeGenerator(size=self.SIZE)
         self.maze = self.mazegenerator.maze
 
     def reset(self) -> None:
