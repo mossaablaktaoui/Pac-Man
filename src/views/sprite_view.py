@@ -35,6 +35,7 @@ class SpriteView:
         self.ghost_sprites: dict[str, dict[str, list[pygame.Surface]]] = {}
         self.eyes_sprites: dict[str, pygame.Surface] = {}
         self.special_sprites: dict[str, list[pygame.Surface]] = {}
+        self.entity_tracks: dict[str, dict] = {}
 
         self._load_pacman_assets()
         self._load_ghost_assets()
@@ -42,17 +43,53 @@ class SpriteView:
     def grid_to_pixel(self, entity: SpriteDT | PacgumDT) -> tuple[int, int]:
         """Convert maze grid coordinates to centered
         screen pixel coordinates."""
-        if isinstance(entity, SpriteDT):
-            x_offset = 0  # entity.pixel_offset_x
-            y_offset = 0  # entity.pixel_offset_y
-        else:
-            x_offset = 0
-            y_offset = 0
+        x = entity.grid_x
+        y = entity.grid_y
 
-        x = entity.grid_x + x_offset
-        y = entity.grid_y + y_offset
         px = (self.xoffset + MARGIN + x * TILE_SIZE + TILE_SIZE // 2)
         py = (self.yoffset + MARGIN + y * TILE_SIZE + TILE_SIZE // 2)
+        return px, py
+
+    def _get_interpolated_pixel(
+            self, entity_id: str, grid_x: int, grid_y: int,
+            dt: float, duration: float = 0.2) -> tuple[int, int]:
+
+        if entity_id not in self.entity_tracks:
+            self.entity_tracks[entity_id] = {
+                "prev_x": float(grid_x),
+                "prev_y": float(grid_y),
+                "curr_x": grid_x,
+                "curr_y": grid_y,
+                "timer": duration,
+            }
+
+        track = self.entity_tracks[entity_id]
+
+        if grid_x != track["curr_x"] or grid_y != track["curr_y"]:
+            dist = (abs(grid_x - track["curr_x"]) +
+                    abs(grid_y - track["curr_y"]))
+
+            if dist > 1:
+                track["prev_x"] = float(grid_x)
+                track["prev_y"] = float(grid_y)
+            else:
+                track["prev_x"] = float(track["curr_x"])
+                track["prev_y"] = float(track["curr_y"])
+
+            track["curr_x"] = grid_x
+            track["curr_y"] = grid_y
+            track["timer"] = 0.0
+
+        track["timer"] = min(duration, track["timer"] + dt)
+        progress = track["timer"] / duration if duration > 0 else 1.0
+
+        interp_x = (track["prev_x"] + (track["curr_x"] - track["prev_x"])
+                    * progress)
+        interp_y = (track["prev_y"] + (track["curr_y"] - track["prev_y"])
+                    * progress)
+
+        px = int(self.xoffset + MARGIN + interp_x * TILE_SIZE + TILE_SIZE // 2)
+        py = int(self.yoffset + MARGIN + interp_y * TILE_SIZE + TILE_SIZE // 2)
         return px, py
 
     def _load_pacman_assets(self) -> None:
@@ -136,7 +173,7 @@ class SpriteView:
         self.update_animations(dt)
         self._draw_pacgums(state)
         self._draw_pacman(state.pacman, dt)
-        self._draw_ghosts(state.ghosts)
+        self._draw_ghosts(state.ghosts, dt)
 
     def _draw_pacgums(self, state: GameStateDT) -> None:
         pellet_color = (255, 184, 151)
@@ -149,7 +186,9 @@ class SpriteView:
                 pygame.draw.circle(self.screen, pellet_color, center, 3)
 
     def _draw_pacman(self, pac: SpriteDT, dt: float) -> None:
-        center = self.grid_to_pixel(pac)
+        # Smoothly glide Pac-Man across 0.2s
+        center = self._get_interpolated_pixel(
+            "pacman", pac.grid_x, pac.grid_y, dt, duration=0.2)
 
         if pac.state == "DEAD":
             self.death_frame_idx += dt * 13.0
@@ -163,14 +202,14 @@ class SpriteView:
         rect = img.get_rect(center=center)
         self.screen.blit(img, rect)
 
-    def _draw_ghosts(self, ghosts: list[SpriteDT]) -> None:
+    def _draw_ghosts(self, ghosts: list[SpriteDT], dt: float) -> None:
         for ghost in ghosts:
-            center = self.grid_to_pixel(ghost)
+            center = self._get_interpolated_pixel(
+                ghost.id, ghost.grid_x, ghost.grid_y, dt, duration=0.25)
             dir_key = ghost.direction.value.lower()
             state_str = (
                 ghost.state.value
-                if hasattr(ghost.state, "value")
-                else str(ghost.state)
+                if hasattr(ghost.state, "value") else str(ghost.state)
             )
 
             if state_str == GhostState.EDIBLE.value:

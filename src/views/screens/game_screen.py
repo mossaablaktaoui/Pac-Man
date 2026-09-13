@@ -15,13 +15,20 @@ class SrcInGame:
                  engine: GameEngine) -> None:
         self.screen = screen
         self.engine = engine
+        self.ready_timer = 5.0
+
+        self.width = self.screen.get_width()
+        self.height = self.screen.get_height()
 
         self.maze_renderer = MazeRenderer(self.engine)
         self.maze_surface = self.maze_renderer.draw()
-        self.maze_xoffset = (self.screen.get_width() -
-                             self.maze_surface.get_width()) // 2
-        self.maze_yoffset = (self.screen.get_height() -
-                             self.maze_surface.get_height()) // 2
+        self.maze_xoffset = (self.width - self.maze_surface.get_width()) // 2
+        self.maze_yoffset = (self.height - self.maze_surface.get_height()) // 2
+
+        try:
+            self.font = pygame.font.Font("assets/fonts/pacfont.ttf", 40)
+        except (FileNotFoundError, pygame.error):
+            self.font = pygame.font.Font(None, 40)
 
         self.hud = HUD(self.screen)
         self.sprite_view = SpriteView(
@@ -60,6 +67,10 @@ class SrcInGame:
                 self.engine.toggle_cheat(CheatCode.FREEZE_GHOSTS)
         return action
 
+    def reset_ready(self) -> None:
+        """Reset countdown for game start or new levels."""
+        self.ready_timer = 4.0
+
     def draw(self, dt: float) -> None:
         """Render the maze and HUD."""
         self.screen.blit(
@@ -73,4 +84,24 @@ class SrcInGame:
             self.engine.gamestate.level,
             self.engine.gamestate.active_cheats
         )
+
         self.sprite_view.draw(self.engine.gamestate, dt)
+
+        if self.ready_timer > 0:
+            frozen = self.screen.copy()
+            blurred_surface = pygame.transform.box_blur(frozen, 8)
+            self.overlay = pygame.Surface(
+                (self.width, self.height), pygame.SRCALPHA
+            )
+            self.overlay.fill((0, 0, 0, 140))
+            self.screen.blit(blurred_surface, (0, 0))
+            self.screen.blit(self.overlay)
+            self.ready_timer -= dt
+            text = (f"LEVEL {self.engine.gamestate.level}"
+                    if self.ready_timer > 4 else str(int(self.ready_timer))
+                    if self.ready_timer > 1 else "READY!")
+            ready_text = self.font.render(text, True, (255, 255, 255))
+            ready_rect = ready_text.get_rect()
+            ready_rect.center = [self.width // 2, self.height // 2]
+            self.screen.blit(ready_text, ready_rect)
+            print(self.ready_timer, ":", dt)

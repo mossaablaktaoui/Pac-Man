@@ -137,6 +137,7 @@ class Renderer:
                         self.current_screen = "MAIN"
                     elif action in ("resume", "replay"):
                         if action == "replay":
+                            self.ingame.reset_ready()
                             self.engine.start_new_game()
                             self.maze_surface = self.maze_renderer.draw()
                         self.current_screen = "INGAME"
@@ -158,6 +159,7 @@ class Renderer:
                     if action == "menu":
                         self.current_screen = "MAIN"
                     elif action == "start":
+                        self.ingame.reset_ready()
                         self.engine.start_new_game()
                         self.maze_surface = self.maze_renderer.draw()
                         self.current_screen = "INGAME"
@@ -172,6 +174,7 @@ class Renderer:
                     if action == "menu":
                         self.current_screen = "MAIN"
                     elif action == "replay":
+                        self.ingame.reset_ready()
                         self.engine.start_new_game()
                         self.maze_surface = self.maze_renderer.draw()
                         self.current_screen = "INGAME"
@@ -179,14 +182,17 @@ class Renderer:
             # 2. STATE CHECKS & LOGIC UPDATE
             if self.current_screen == "INGAME":
                 if self.current_level != self.engine.gamestate.level:
+                    self.current_level = self.engine.gamestate.level
                     self.maze_surface = self.maze_renderer.draw()
+                    self.ingame.reset_ready()
                 if (self.engine.gamestate.is_game_over or
                         self.engine.gamestate.is_victory):
                     self.save_score.user_text = ""
                     self._snapshot_blur()
                     self.current_screen = "SAVE"
                 elif not self.engine.gamestate.is_paused:
-                    self.engine.update(dt)
+                    if self.ingame.ready_timer <= 0:
+                        self.engine.update(dt)
 
             # 3. DRAWING
             if self.current_screen == "MAIN":
