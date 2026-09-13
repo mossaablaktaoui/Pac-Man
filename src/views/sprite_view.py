@@ -2,6 +2,7 @@
 for Pac-Man and ghosts."""
 
 import pygame
+from src.core.engine import GameEngine
 from src.core.entities import (
     GameStateDT,
     GhostState,
@@ -19,9 +20,11 @@ class SpriteView:
 
     def __init__(self,
                  screen: pygame.Surface,
+                 engine: GameEngine,
                  xoffset: int, yoffset: int
                  ) -> None:
         self.screen = screen
+        self.engine = engine
 
         self.xoffset = xoffset
         self.yoffset = yoffset
@@ -172,8 +175,8 @@ class SpriteView:
         at the dynamic maze screen offsets."""
         self.update_animations(dt)
         self._draw_pacgums(state)
-        self._draw_pacman(state.pacman, dt)
         self._draw_ghosts(state.ghosts, dt)
+        self._draw_pacman(state.pacman, dt)
 
     def _draw_pacgums(self, state: GameStateDT) -> None:
         pellet_color = (255, 184, 151)
@@ -203,25 +206,26 @@ class SpriteView:
         self.screen.blit(img, rect)
 
     def _draw_ghosts(self, ghosts: list[SpriteDT], dt: float) -> None:
-        for ghost in ghosts:
-            center = self._get_interpolated_pixel(
-                ghost.id, ghost.grid_x, ghost.grid_y, dt, duration=0.25)
-            dir_key = ghost.direction.value.lower()
-            state_str = (
-                ghost.state.value
-                if hasattr(ghost.state, "value") else str(ghost.state)
-            )
+        if self.engine.gamestate.pacman.state == "ALIVE":
+            for ghost in ghosts:
+                center = self._get_interpolated_pixel(
+                    ghost.id, ghost.grid_x, ghost.grid_y, dt, duration=0.25)
+                dir_key = ghost.direction.value.lower()
+                state_str = (
+                    ghost.state.value
+                    if hasattr(ghost.state, "value") else str(ghost.state)
+                )
 
-            if state_str == GhostState.EDIBLE.value:
-                img = self.special_sprites["edible"][self.move_frame % 2]
-            elif state_str == GhostState.FLASHING.value:
-                img = self.special_sprites["flashing"][self.flash_frame]
-            elif state_str == GhostState.EATEN.value:
-                img = self.eyes_sprites[dir_key]
-            else:
-                ghost_id = ghost.id.lower()
-                frames = self.ghost_sprites[ghost_id][dir_key]
-                img = frames[self.move_frame % 2]
+                if state_str == GhostState.EDIBLE.value:
+                    img = self.special_sprites["edible"][self.move_frame % 2]
+                elif state_str == GhostState.FLASHING.value:
+                    img = self.special_sprites["flashing"][self.flash_frame]
+                elif state_str == GhostState.EATEN.value:
+                    img = self.eyes_sprites[dir_key]
+                else:
+                    ghost_id = ghost.id.lower()
+                    frames = self.ghost_sprites[ghost_id][dir_key]
+                    img = frames[self.move_frame % 2]
 
-            rect = img.get_rect(center=center)
-            self.screen.blit(img, rect)
+                rect = img.get_rect(center=center)
+                self.screen.blit(img, rect)

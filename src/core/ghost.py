@@ -101,7 +101,7 @@ class GhostManager:
             elif ghost.id == "pinky" or ghost.id == "clyde":
                 next_cell = self._random_next_step(ghost)
 
-            else: # "inky"
+            else:  # "inky"
                 target = self._get_predicted_target(gamestate)
                 next_cell = self._bfs_next_step(start, target)
 
@@ -188,8 +188,7 @@ class GhostManager:
 
         return current
 
-    def _random_next_step(self, ghost: SpriteDT,
-                        ) -> tuple[int, int] | None:
+    def _random_next_step(self, ghost: SpriteDT) -> tuple[int, int] | None:
         """Move forward, choose randomly when blocked."""
         x = ghost.grid_x
         y = ghost.grid_y
@@ -212,7 +211,7 @@ class GhostManager:
         return random.choice(neighbors)
 
     def _get_predicted_target(self,
-                        gamestate: GameStateDT,) -> tuple[int, int]:
+                              gamestate: GameStateDT,) -> tuple[int, int]:
         """Return a cell up to 20 steps ahead of Pac-Man."""
         pacman = gamestate.pacman
 

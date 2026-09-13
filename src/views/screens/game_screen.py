@@ -32,7 +32,9 @@ class SrcInGame:
 
         self.hud = HUD(self.screen)
         self.sprite_view = SpriteView(
-            self.screen, self.maze_xoffset, self.maze_yoffset)
+            self.screen, self.engine, self.maze_xoffset, self.maze_yoffset)
+
+        self._snapshot_blur()
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
         """Forward events to HUD or process gameplay keys."""
@@ -71,6 +73,15 @@ class SrcInGame:
         """Reset countdown for game start or new levels."""
         self.ready_timer = 4.0
 
+    def _snapshot_blur(self) -> None:
+        """Capture the current frame and apply box blur."""
+        frozen = self.screen.copy()
+        self.blurred_surface = pygame.transform.box_blur(frozen, 8)
+        self.overlay = pygame.Surface(
+                (self.width, self.height), pygame.SRCALPHA
+        )
+        self.overlay.fill((0, 0, 0, 140))
+
     def draw(self, dt: float) -> None:
         """Render the maze and HUD."""
         self.screen.blit(
@@ -88,13 +99,7 @@ class SrcInGame:
         self.sprite_view.draw(self.engine.gamestate, dt)
 
         if self.ready_timer > 0:
-            frozen = self.screen.copy()
-            blurred_surface = pygame.transform.box_blur(frozen, 8)
-            self.overlay = pygame.Surface(
-                (self.width, self.height), pygame.SRCALPHA
-            )
-            self.overlay.fill((0, 0, 0, 140))
-            self.screen.blit(blurred_surface, (0, 0))
+            self.screen.blit(self.blurred_surface, (0, 0))
             self.screen.blit(self.overlay)
             self.ready_timer -= dt
             text = (f"LEVEL {self.engine.gamestate.level}"
@@ -104,4 +109,3 @@ class SrcInGame:
             ready_rect = ready_text.get_rect()
             ready_rect.center = [self.width // 2, self.height // 2]
             self.screen.blit(ready_text, ready_rect)
-            print(self.ready_timer, ":", dt)

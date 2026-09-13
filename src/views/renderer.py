@@ -17,23 +17,24 @@ IMAGES = "assets/images"
 
 
 class CrossHair(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.image = pygame.image.load(f"{IMAGES}/icons/crosshair.png")
         self.sound = pygame.mixer.Sound("assets/sounds/crosshair.mp3")
         self.image = pygame.transform.scale(self.image, (80, 80))
         self.rect = self.image.get_rect()
-        self.group = pygame.sprite.Group()
+        self.group: pygame.sprite.Group = pygame.sprite.Group()
         self.group.add(self)
 
-    def click(self):
+    def click(self) -> None:
         self.sound.play()
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface) -> None:
         self.group.draw(surface)
 
-    def update(self):
-        self.rect.center = pygame.mouse.get_pos()
+    def update(self) -> None:
+        if self.rect:
+            self.rect.center = pygame.mouse.get_pos()
 
 
 class Renderer:
