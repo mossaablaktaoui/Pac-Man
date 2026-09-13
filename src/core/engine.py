@@ -30,6 +30,8 @@ class GameEngine:
         self.pacman_move_timer = 0.0
         self.ghost_manager = GhostManager(self.maze)
 
+        self.dead_timer = 1.3
+
     def setup_game_state(self) -> GameStateDT:
         """Create the initial game state."""
         width = self.maze.width
@@ -128,6 +130,7 @@ class GameEngine:
         self.pacman_move_timer = 0.0
 
         self.ghost_manager.reset(self.maze)
+        self.dead_timer = 1.3
 
     def update(self, dt: float) -> None:
         # stop simulation if the game is paused or over.
@@ -135,6 +138,16 @@ class GameEngine:
                 or self.gamestate.is_game_over
                 or self.gamestate.is_victory
                 or self.gamestate.is_level_cleared):
+            return
+
+        # dead timer
+        if self.gamestate.pacman.state == "DEAD":
+            self.dead_timer -= dt
+            
+            if self.dead_timer <= 0.0:
+                self.gamestate.pacman.state = "ALIVE"
+                self._reset_positions()
+                self.dead_timer = 1.3
             return
 
         # stop the game when the time is over.
@@ -271,7 +284,8 @@ class GameEngine:
                     self.gamestate.is_game_over = True
                     return
 
-                self._reset_positions()
+                self.gamestate.pacman.state = "DEAD"
+
                 return
 
     def _reset_positions(self) -> None:
@@ -317,5 +331,9 @@ class GameEngine:
         self.pacman_move_timer = 0.0
 
         self.ghost_manager.reset(self.maze)
+
+        self._reset_positions()
+
+        self.dead_timer = 1.3
 
         return
