@@ -8,6 +8,9 @@ run:
 debug:
 	python -m pdb pac-man.py config.json
 
+test:
+	uv run python -m unittest discover -s tests -v
+
 clean:
 	rm -rf *.pyc __pycache__ .mypy_cache
 
@@ -21,4 +24,4 @@ lint-strict:
 	uv run flake8 .
 	uv run mypy . --strict
 
-.PHONY: install run clean debug lint
+.PHONY: install run debug test clean lint lint-strict
