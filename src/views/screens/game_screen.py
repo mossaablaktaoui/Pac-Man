@@ -1,3 +1,5 @@
+"""In-game active gameplay screen controller and renderer."""
+
 import pygame
 
 from src.core.entities import Direction
@@ -10,6 +12,8 @@ from src.views.sprite_view import SpriteView
 
 
 class SrcInGame:
+    """Manages gameplay view, input handling, and ready timers."""
+
     def __init__(self,
                  screen: pygame.Surface,
                  engine: GameEngine) -> None:
@@ -83,7 +87,7 @@ class SrcInGame:
         self.overlay.fill((0, 0, 0, 140))
 
     def draw(self, dt: float) -> None:
-        """Render the maze and HUD."""
+        """Render the maze, HUD, entity sprites, and ready banner."""
         self.screen.blit(
             self.maze_surface,
             (self.maze_xoffset, self.maze_yoffset)

@@ -1,3 +1,5 @@
+"""Ghost artificial intelligence manager and pathfinding state machine."""
+
 from src.core.maze_adapter import MazeAdapter
 from src.core.entities import GameStateDT, SpriteDT, Direction, GhostState
 from collections import deque
@@ -5,7 +7,10 @@ import random
 
 
 class GhostManager:
+    """Coordinates ghost AI behaviors, BFS pathfinding, and timers."""
+
     def __init__(self, maze: MazeAdapter) -> None:
+        """Initialize ghost movement timers and maze reference."""
         self.maze = maze
         self.move_timer = 0.0
         self.edible_move_timer = 0.0
@@ -18,7 +23,7 @@ class GhostManager:
         }
 
     def update(self, gamestate: GameStateDT, dt: float) -> None:
-        """Update ghost movement."""
+        """Update ghost timers, edible status, and execute movement steps."""
         # count the time for the edible state.
         if self.edible_timer > 0:
             self.edible_timer -= dt
@@ -64,6 +69,7 @@ class GhostManager:
         return
 
     def _get_spawn_position(self, ghost: SpriteDT) -> tuple[int, int]:
+        """Return home spawn corner coordinates for a ghost."""
         width = self.maze.width
         height = self.maze.height
 
@@ -80,6 +86,7 @@ class GhostManager:
 
     def _move_ghost(self, ghost: SpriteDT,
                     gamestate: GameStateDT) -> None:
+        """Advance ghost position based on AI profile and current state."""
 
         start = (ghost.grid_x, ghost.grid_y)
 
@@ -146,6 +153,7 @@ class GhostManager:
         return valid_directions
 
     def make_edible(self, gamestate: GameStateDT) -> None:
+        """Transition all active ghosts into edible frightened state."""
         self.edible_timer = 8.0
 
         for ghost in gamestate.ghosts:
@@ -234,6 +242,7 @@ class GhostManager:
         return x, y
 
     def reset(self, maze: MazeAdapter) -> None:
+        """Reset ghost timers and maze reference for a new level."""
         self.maze = maze
         self.move_timer = 0.0
         self.edible_timer = 0.0
@@ -241,6 +250,7 @@ class GhostManager:
 
     def _get_flee_target(self, ghost: SpriteDT,
                          gamestate: GameStateDT,) -> tuple[int, int]:
+        """Return target cell maximizing Manhattan distance to Pac-Man."""
         pacman = gamestate.pacman
 
         best_cell = (ghost.grid_x, ghost.grid_y)

@@ -1,11 +1,15 @@
+"""Game over screen presenting final score and replay options."""
+
 import sys
 import pygame
-from typing import List, Dict
+from typing import Any, List, Dict
 
 from src.core.engine import GameEngine
 
 
 class ScrGameOver:
+    """Manages game over display, replay triggers, and menu routing."""
+
     def __init__(self,
                  screen: pygame.Surface,
                  engine: GameEngine) -> None:
@@ -20,10 +24,11 @@ class ScrGameOver:
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.buttons: List[Dict] = []
+        self.buttons: List[Dict[str, Any]] = []
         self._load_buttons()
 
     def _load_buttons(self) -> None:
+        """Preload game over screen interactive buttons."""
         buttons_dir = "assets/images/buttons"
         buttons_config = [
             ("menu", 0.5, (0.4, 0.695)),
@@ -46,6 +51,7 @@ class ScrGameOver:
             })
 
     def draw_score_text(self, score: int = 0, highscore: int = 0) -> None:
+        """Render final score and highest score onto game over board."""
         # Horizontal center ratios across the board for each column
         text_color = (255, 255, 255)
         column_ratios: dict[str, tuple[str, float]] = {
@@ -60,7 +66,7 @@ class ScrGameOver:
             self.screen.blit(text_surf, text_rect)
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Handle clicks. Returns the button name if clicked, else None."""
+        """Process button interactions on the game over screen."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for btn in self.buttons:
                 if btn["rect"].collidepoint(event.pos):
@@ -73,7 +79,7 @@ class ScrGameOver:
         return None
 
     def draw(self) -> None:
-        """Render the maze and HUD."""
+        """Render game over navigation buttons and final scores."""
         mouse_pos = pygame.mouse.get_pos()
         for btn in self.buttons:
             if btn["rect"].collidepoint(mouse_pos):

@@ -1,3 +1,5 @@
+"""Developer debug cheat codes and state toggle management."""
+
 from enum import Enum
 from typing import TYPE_CHECKING
 
@@ -6,6 +8,8 @@ if TYPE_CHECKING:
 
 
 class CheatCode(str, Enum):
+    """Enumeration of developer debug cheat features."""
+
     SKIP_LEVEL = "SKIP_LEVEL"
     FREEZE_GHOSTS = "FREEZE_GHOSTS"
     UNLIMITED_LIFE = "UNLIMITED_LIFE"
@@ -13,7 +17,10 @@ class CheatCode(str, Enum):
 
 
 class Cheats:
+    """Manages active developer cheats and toggles."""
+
     def __init__(self, gamestate: "GameStateDT") -> None:
+        """Initialize cheats with a reference to the active game state."""
         self.gamestate = gamestate
 
     def toggle(self, cheat_code: CheatCode) -> None:

@@ -1,11 +1,15 @@
+"""How-to-play instruction and controls screen."""
+
 import sys
 import pygame
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from src.core.engine import GameEngine
 
 
 class ScrInstructions:
+    """Displays game controls, scoring rules, and ghost behaviors."""
+
     def __init__(self,
                  screen: pygame.Surface,
                  engine: GameEngine) -> None:
@@ -15,10 +19,11 @@ class ScrInstructions:
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.buttons: List[Dict] = []
+        self.buttons: List[Dict[str, Any]] = []
         self._load_buttons()
 
     def _load_buttons(self) -> None:
+        """Preload navigation buttons for the instructions screen."""
         buttons_dir = "assets/images/buttons"
         buttons_config = [
             ("start", 0.5, (0.89, 0.081)),
@@ -40,7 +45,7 @@ class ScrInstructions:
             })
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Forward events to HUD or process gameplay keys."""
+        """Process button interactions on the instructions screen."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for btn in self.buttons:
                 if btn["rect"].collidepoint(event.pos):
@@ -51,7 +56,7 @@ class ScrInstructions:
         return None
 
     def draw(self) -> None:
-        """Render the maze and HUD."""
+        """Render instruction panels and navigation buttons."""
         mouse_pos = pygame.mouse.get_pos()
         for btn in self.buttons:
             if btn["rect"].collidepoint(mouse_pos):

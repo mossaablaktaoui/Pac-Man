@@ -1,3 +1,5 @@
+"""Configuration file parser, validator, and default generator."""
+
 import json
 import sys
 from pathlib import Path
@@ -5,11 +7,16 @@ from typing import Any
 
 
 class ConfigError(Exception):
+    """Exception raised for configuration errors."""
+
     pass
 
 
 class Config:
+    """Manages parsing, validating, and applying game settings."""
+
     def __init__(self) -> None:
+        """Initialize configuration from command line arguments."""
         self.filename = self.parse_args()
 
         self.highscore_filename = "highscores.json"

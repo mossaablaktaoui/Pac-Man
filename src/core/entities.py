@@ -1,3 +1,5 @@
+"""Data transfer objects and enumerations for game state representation."""
+
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -7,6 +9,8 @@ if TYPE_CHECKING:
 
 
 class Direction(str, Enum):
+    """Enumeration of cardinal navigation directions."""
+
     UP = "UP"
     DOWN = "DOWN"
     LEFT = "LEFT"
@@ -14,6 +18,8 @@ class Direction(str, Enum):
 
 
 class GhostState(str, Enum):
+    """Enumeration of ghost operational behavior states."""
+
     NORMAL = "NORMAL"
     EDIBLE = "EDIBLE"
     FLASHING = "FLASHING"
@@ -22,6 +28,8 @@ class GhostState(str, Enum):
 
 @dataclass()
 class SpriteDT:
+    """Data transfer object representing an animated grid entity."""
+
     id: str
     grid_x: int
     grid_y: int
@@ -31,6 +39,8 @@ class SpriteDT:
 
 @dataclass()
 class PacgumDT:
+    """Data transfer object representing a collectible pellet on the grid."""
+
     grid_x: int
     grid_y: int
     is_super: bool
@@ -38,6 +48,8 @@ class PacgumDT:
 
 @dataclass()
 class GameStateDT:
+    """Read-only snapshot of the complete game state passed to renderers."""
+
     level: int
     score: int
     lives: int

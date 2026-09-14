@@ -1,3 +1,5 @@
+"""Main graphical presentation controller and application event loop."""
+
 import sys
 import pygame
 
@@ -17,27 +19,37 @@ IMAGES = "assets/images"
 
 
 class CrossHair(pygame.sprite.Sprite):
+    """Custom interactive crosshair cursor sprite with click sound."""
+
     def __init__(self) -> None:
+        """Initialize crosshair image, sound effect, and sprite group."""
         super().__init__()
         self.image = pygame.image.load(f"{IMAGES}/icons/crosshair.png")
         self.sound = pygame.mixer.Sound("assets/sounds/crosshair.mp3")
         self.image = pygame.transform.scale(self.image, (80, 80))
         self.rect = self.image.get_rect()
-        self.group: pygame.sprite.Group = pygame.sprite.Group()
+        self.group: pygame.sprite.Group[pygame.sprite.Sprite] = (
+            pygame.sprite.Group()
+        )
         self.group.add(self)
 
     def click(self) -> None:
+        """Play crosshair click audio effect."""
         self.sound.play()
 
     def draw(self, surface: pygame.Surface) -> None:
+        """Draw crosshair sprite onto target surface."""
         self.group.draw(surface)
 
     def update(self) -> None:
+        """Update crosshair position to track mouse cursor."""
         if self.rect:
             self.rect.center = pygame.mouse.get_pos()
 
 
 class Renderer:
+    """Top-level Pygame display, clock, event loop, and screen coordinator."""
+
     def __init__(
         self,
         screen_width: int | None = None,
@@ -88,6 +100,7 @@ class Renderer:
         self._load_backgrounds()
 
     def _load_backgrounds(self) -> None:
+        """Preload and scale all backdrop images for screens."""
         bg_dir = f"{IMAGES}/backgrounds"
         bg_keys = ["highscores", "instructions", "menu", "victory", "gameover"]
 
@@ -103,6 +116,7 @@ class Renderer:
         self.blurred_surface = pygame.transform.box_blur(frozen, 8)
 
     def run(self) -> None:
+        """Execute the primary 60 FPS game loop and event dispatcher."""
         dt = 0.0
         while self.running:
             # 1. EVENT HANDLING (Only one event loop)

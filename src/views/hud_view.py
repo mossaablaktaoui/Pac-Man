@@ -1,7 +1,7 @@
 """HUD overlay component for drawing in-game status boards."""
 import sys
 import pygame
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from src.core.cheats import CheatCode
 
@@ -10,19 +10,17 @@ class HUD:
     """Manages loading and rendering game status boards and text."""
 
     def __init__(self, screen: pygame.Surface) -> None:
-        """Initialize fonts and preload all board panels.
+        """Initialize fonts, HUD boards, buttons, and cheat toggles.
 
         Args:
-            font_path: Path to the TrueType font file.
-            font_size: Size of the rendered font.
-            scale_factor: Scale multiplier for the board images.
+            screen: Pygame display surface to draw onto.
         """
         self.screen = screen
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
-        self.buttons: List[Dict] = []
-        self.boards: List[Dict] = []
-        self.toggle_btns: List[Dict] = []
+        self.buttons: List[Dict[str, Any]] = []
+        self.boards: List[Dict[str, Any]] = []
+        self.toggle_btns: List[Dict[str, Any]] = []
         try:
             self.font = pygame.font.Font("assets/fonts/pacfont.ttf", 18)
         except (FileNotFoundError, pygame.error):
@@ -34,6 +32,7 @@ class HUD:
         self._load_onoff()
 
     def _load_boards(self) -> None:
+        """Load board panels and center them relative to display size."""
         images_dir = "assets/images/boards"
         boards_config = [
             ("top", (self.width // 2, 60)),
@@ -53,6 +52,7 @@ class HUD:
             })
 
     def _load_onoff(self) -> None:
+        """Load toggle indicators for developer cheat badges."""
         icons_dir = "assets/images/icons"
         toggle_config = [
             (CheatCode.SPEED,
@@ -77,6 +77,7 @@ class HUD:
             })
 
     def _load_buttons(self) -> None:
+        """Load interactive HUD buttons for pause and menu."""
         buttons_dir = "assets/images/buttons"
         buttons_config = [
             ("pause", 0.75, (0.86, 0.081)),
@@ -126,7 +127,7 @@ class HUD:
             self.screen.blit(text_surf, text_rect)
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Handle clicks. Returns the button name if clicked, else None."""
+        """Handle mouse click interactions on HUD buttons."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for btn in self.buttons:
                 if btn["rect"].collidepoint(event.pos):
@@ -145,11 +146,11 @@ class HUD:
         """Draw all boards and center their dynamic text values.
 
         Args:
-            screen: The target surface to draw onto.
             score: Current player score.
             lives: Remaining player lives.
             time_left: Remaining time in seconds.
             level: Current level number.
+            cheats: List of active cheat codes.
         """
         mouse_pos = pygame.mouse.get_pos()
         for btn in self.buttons:

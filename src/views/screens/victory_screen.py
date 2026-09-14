@@ -1,11 +1,15 @@
+"""Campaign victory screen celebrating 10-level completion."""
+
 import sys
 import pygame
-from typing import List, Dict
+from typing import Any, List, Dict
 
 from src.core.engine import GameEngine
 
 
 class ScrVictory:
+    """Manages campaign victory screen, final stats, and menu buttons."""
+
     def __init__(self,
                  screen: pygame.Surface,
                  engine: GameEngine) -> None:
@@ -20,10 +24,11 @@ class ScrVictory:
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.buttons: List[Dict] = []
+        self.buttons: List[Dict[str, Any]] = []
         self._load_buttons()
 
     def _load_buttons(self) -> None:
+        """Preload victory screen action buttons."""
         buttons_dir = "assets/images/buttons"
         buttons_config = [
             ("menu", 0.5, (0.4, 0.695)),
@@ -46,6 +51,7 @@ class ScrVictory:
             })
 
     def draw_score_text(self, score: int = 0, highscore: int = 0) -> None:
+        """Render final score and highest score onto victory board."""
         # Horizontal center ratios across the board for each column
         text_color = (255, 255, 255)
         column_ratios: dict[str, tuple[str, float]] = {
@@ -60,7 +66,7 @@ class ScrVictory:
             self.screen.blit(text_surf, text_rect)
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Handle clicks. Returns the button name if clicked, else None."""
+        """Handle button click actions on the victory screen."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for btn in self.buttons:
                 if btn["rect"].collidepoint(event.pos):
@@ -71,7 +77,7 @@ class ScrVictory:
         return None
 
     def draw(self) -> None:
-        """Render the maze and HUD."""
+        """Render victory screen buttons and final scores."""
         mouse_pos = pygame.mouse.get_pos()
         for btn in self.buttons:
             if btn["rect"].collidepoint(mouse_pos):

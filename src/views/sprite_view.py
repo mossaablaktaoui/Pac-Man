@@ -1,6 +1,7 @@
 """Entity renderer handling animation states and drawing
 for Pac-Man and ghosts."""
 
+from typing import Any
 import pygame
 from src.core.engine import GameEngine
 from src.core.entities import (
@@ -23,6 +24,7 @@ class SpriteView:
                  engine: GameEngine,
                  xoffset: int, yoffset: int
                  ) -> None:
+        """Initialize entity sprite view, animation timers, and assets."""
         self.screen = screen
         self.engine = engine
 
@@ -38,7 +40,7 @@ class SpriteView:
         self.ghost_sprites: dict[str, dict[str, list[pygame.Surface]]] = {}
         self.eyes_sprites: dict[str, pygame.Surface] = {}
         self.special_sprites: dict[str, list[pygame.Surface]] = {}
-        self.entity_tracks: dict[str, dict] = {}
+        self.entity_tracks: dict[str, dict[str, Any]] = {}
 
         self._load_pacman_assets()
         self._load_ghost_assets()
@@ -56,6 +58,8 @@ class SpriteView:
     def _get_interpolated_pixel(
             self, entity_id: str, grid_x: int, grid_y: int,
             dt: float, duration: float = 0.2) -> tuple[int, int]:
+        """Calculate smooth sub-tile pixel coordinate interpolated
+        across dt."""
 
         if entity_id not in self.entity_tracks:
             self.entity_tracks[entity_id] = {
@@ -96,6 +100,7 @@ class SpriteView:
         return px, py
 
     def _load_pacman_assets(self) -> None:
+        """Load and scale directional and death sprites for Pac-Man."""
         base_dir = "assets/images/pacman"
         directions = ["right", "up", "left", "down"]
 
@@ -118,6 +123,7 @@ class SpriteView:
         ]
 
     def _load_ghost_assets(self) -> None:
+        """Load and scale ghost sprites for all directions and states."""
         ghost_dir = "assets/images/ghosts"
         ghost_names = ["blinky", "pinky", "inky", "clyde"]
         directions = ["right", "up", "left", "down"]
@@ -163,6 +169,7 @@ class SpriteView:
             )
 
     def update_animations(self, dt: float) -> None:
+        """Advance animation frame counters based on delta-time."""
         """Advance animation counters."""
         self.anim_timer += dt
         if self.anim_timer >= 0.12:
@@ -171,6 +178,7 @@ class SpriteView:
             self.flash_frame = (self.flash_frame + 1) % 2
 
     def draw(self, state: GameStateDT, dt: float) -> None:
+        """Render all active pellets, Pac-Man, and ghost entities."""
         """Render pellets, Pac-Man, and ghosts
         at the dynamic maze screen offsets."""
         self.update_animations(dt)
@@ -179,6 +187,7 @@ class SpriteView:
         self._draw_pacman(state.pacman, dt)
 
     def _draw_pacgums(self, state: GameStateDT) -> None:
+        """Draw collectible standard pellets and energized super-pacgums."""
         pellet_color = (255, 184, 151)
         for pellet in state.pacgums:
             center = self.grid_to_pixel(pellet)
@@ -189,6 +198,7 @@ class SpriteView:
                 pygame.draw.circle(self.screen, pellet_color, center, 3)
 
     def _draw_pacman(self, pac: SpriteDT, dt: float) -> None:
+        """Draw animated Pac-Man sprite at its interpolated pixel position."""
         # Smoothly glide Pac-Man across 0.2s
         center = self._get_interpolated_pixel(
             "pacman", pac.grid_x, pac.grid_y, dt, duration=0.2)
@@ -206,6 +216,8 @@ class SpriteView:
         self.screen.blit(img, rect)
 
     def _draw_ghosts(self, ghosts: list[SpriteDT], dt: float) -> None:
+        """Draw animated ghosts and floating eyes at interpolated
+        coordinates."""
         if self.engine.gamestate.pacman.state == "ALIVE":
             for ghost in ghosts:
                 center = self._get_interpolated_pixel(

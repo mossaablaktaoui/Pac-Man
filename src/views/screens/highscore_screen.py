@@ -1,9 +1,15 @@
+from typing import Any
+"""Highscores leaderboard display screen."""
+
 import pygame
 from src.core.engine import GameEngine
 
 
 class ScrHighscores:
+    """Manages leaderboard screen display, score listing, and menu button."""
+
     def __init__(self, screen: pygame.Surface, engine: GameEngine) -> None:
+        """Initialize leaderboard screen and load font resources."""
         self.screen = screen
         self.engine = engine
 
@@ -16,11 +22,12 @@ class ScrHighscores:
         self.height = self.screen.get_height()
 
         # Cache highscores in memory (avoid disk reads 60x/sec)
-        self.scores: list[dict] = []
+        self.scores: list[dict[str, Any]] = []
         self._load_assets()
         self.refresh()
 
     def _load_assets(self) -> None:
+        """Preload leaderboard panel assets and return button."""
         buttons_dir = "assets/images/buttons"
         self.idle_menu = pygame.image.load(
             f"{buttons_dir}/menu_idle.png"
@@ -37,10 +44,11 @@ class ScrHighscores:
                                  int(self.height * 0.86)]
 
     def refresh(self) -> None:
-        """Fetch and cache latest scores from the engine."""
+        """Fetch and cache latest top 10 records from the engine."""
         self.scores = self.engine.get_highscores()
 
     def draw_scores_text(self) -> None:
+        """Render leaderboard ranking table, names, and scores."""
         if not self.scores:
             empty_surf = self.font.render("NO SCORES YET",
                                           True, (255, 255, 255))
@@ -73,12 +81,14 @@ class ScrHighscores:
             self.screen.blit(score_surf, score_rect)
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
+        """Handle navigation events on the highscores screen."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.menu_rect.collidepoint(event.pos):
                 return "menu"
         return None
 
     def draw(self) -> None:
+        """Render leaderboard ranking table, names, and scores."""
         mouse_pos = pygame.mouse.get_pos()
         if self.menu_rect.collidepoint(mouse_pos):
             self.screen.blit(self.hover_menu, self.menu_rect)

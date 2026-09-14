@@ -1,11 +1,15 @@
+"""Pause menu overlay modal controller."""
+
 import sys
 import pygame
-from typing import List, Dict
+from typing import Any, List, Dict
 
 from src.core.engine import GameEngine
 
 
 class ScrPause:
+    """Manages pause menu modal overlay, buttons, and state actions."""
+
     def __init__(self,
                  screen: pygame.Surface,
                  engine: GameEngine) -> None:
@@ -15,10 +19,11 @@ class ScrPause:
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.buttons: List[Dict] = []
+        self.buttons: List[Dict[str, Any]] = []
         self._load_buttons()
 
     def _load_buttons(self) -> None:
+        """Preload pause modal action buttons."""
         buttons_dir = "assets/images/buttons"
         buttons_config = [
             ("resume", 0.5, (0.5, 0.305)),
@@ -42,7 +47,7 @@ class ScrPause:
             })
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Handle clicks. Returns the button name if clicked, else None."""
+        """Handle button click actions in the pause modal."""
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_p:
                 self.engine.toggle_pause()
@@ -64,7 +69,7 @@ class ScrPause:
         return None
 
     def draw(self) -> None:
-        """Render the maze and HUD."""
+        """Draw pause menu action buttons."""
         mouse_pos = pygame.mouse.get_pos()
         for btn in self.buttons:
             if btn["rect"].collidepoint(mouse_pos):

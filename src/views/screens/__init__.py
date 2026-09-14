@@ -1,3 +1,4 @@
+"""Screen controllers for menu, gameplay, overlays, and modals."""
 from src.views.screens.game_screen import SrcInGame
 from src.views.screens.pause_screen import ScrPause
 from src.views.screens.menu_screen import SrcMainMenu

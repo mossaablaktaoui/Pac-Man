@@ -1,6 +1,8 @@
+"""Main menu screen controller and interactive button dispatcher."""
+
 import sys
 import pygame
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from src.core.engine import GameEngine
 
@@ -10,13 +12,15 @@ PACMAN_DIR = "assets/images/pacman"
 
 
 class SrcMainMenu:
+    """Coordinates main menu UI, animated sprites, and button navigation."""
+
     def __init__(self,
                  screen: pygame.surface.Surface,
                  engine: GameEngine) -> None:
         self.screen = screen
-        self.buttons: List[Dict] = []
-        self.ghosts: List[Dict] = []
-        self.pacman_frames: List = []
+        self.buttons: List[Dict[str, Any]] = []
+        self.ghosts: List[Dict[str, Any]] = []
+        self.pacman_frames: List[pygame.Surface] = []
         self.selected_btn = "START"
 
         self.width = self.screen.get_width()
@@ -32,6 +36,7 @@ class SrcMainMenu:
         self._load_ghosts()
 
     def _load_pacman(self) -> None:
+        """Load animated Pac-Man frames for the title screen."""
         for i in range(1, 5):
             img = pygame.image.load(f"{PACMAN_DIR}/pacman{i}.png"
                                     ).convert_alpha()
@@ -42,6 +47,7 @@ class SrcMainMenu:
                                    int(self.height * 0.62))
 
     def _load_buttons(self) -> None:
+        """Preload menu action buttons and compute screen layout."""
         button_configs = [
             ("start", 0.35),
             ("instructions", 0.47),
@@ -71,6 +77,7 @@ class SrcMainMenu:
             })
 
     def _load_ghosts(self) -> None:
+        """Load ghost preview sprites for menu presentation."""
         # Ghosts on the left face right; ghosts on the right face left
         ghost_configs = [
             ("blinky", (0.14, 0.32), "right"),
@@ -98,6 +105,7 @@ class SrcMainMenu:
             })
 
     def _draw_pacgums(self) -> None:
+        """Draw animated trail of pellets ahead of Pac-Man."""
         pellet_color = (255, 227, 0)
         y = int(self.height * 0.62)
         spacing = 45
@@ -114,7 +122,7 @@ class SrcMainMenu:
             x += spacing
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
-        """Handle mouse clicks. Returns button name or None."""
+        """Process mouse hover and click events on menu buttons."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             for btn in self.buttons:
                 if btn["rect"].collidepoint(event.pos):
@@ -125,7 +133,7 @@ class SrcMainMenu:
         return None
 
     def draw(self) -> None:
-        """Draw buttons based on current mouse hover position."""
+        """Render title banner, menu buttons, and animated characters."""
         mouse_pos = pygame.mouse.get_pos()
         self.screen.blit(self.logo, self.logo_rect)
         self._draw_pacgums()

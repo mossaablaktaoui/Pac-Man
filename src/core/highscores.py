@@ -1,13 +1,20 @@
+"""Highscore persistence and validation manager."""
+
 import json
 from typing import Any
 
 
 class HighscoreManagerError(Exception):
+    """Exception raised for highscore persistence errors."""
+
     pass
 
 
 class HighscoreManager:
+    """Manages loading, validating, sorting, and saving top scores."""
+
     def __init__(self, filename: str) -> None:
+        """Initialize score manager and load highscores from file."""
         self.filename = filename
         self.scores: list[dict[str, Any]] = []
         self.load_scores()
@@ -49,13 +56,15 @@ class HighscoreManager:
             ) from error
 
     def validate_name(self, name: str) -> bool:
-        """Check player name."""
+        """Validate that player name is 1-10 alphanumeric characters
+        or spaces."""
         return 0 < len(name) <= 10 and all(
             char.isalnum() or char == " " for char in name
         )
 
     def add_score(self, name: str, score: int) -> bool:
-        """Add a new score."""
+        """Validate, insert, sort, and clamp new score into top 10
+        list."""
         if not self.validate_name(name):
             raise HighscoreManagerError("the name is not valid")
 
@@ -88,5 +97,6 @@ class HighscoreManager:
         return self.scores
 
     def get_highscore(self) -> int:
+        """Return the top highscore or 0 if empty."""
         scores = self.get_highscores()
         return scores[0]["score"] if scores else 0

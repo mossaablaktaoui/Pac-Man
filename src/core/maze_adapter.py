@@ -1,3 +1,5 @@
+"""Adapter wrapping the external A-Maze-ing maze generator."""
+
 from typing import Tuple, List
 from mazegenerator import MazeGenerator
 from src.core.entities import Direction
@@ -5,9 +7,12 @@ import random
 
 
 class MazeAdapter:
+    """Adapts external MazeGenerator to engine grid navigation."""
+
     SIZE = (15, 15)
 
     def __init__(self, seed: int):
+        """Initialize maze grid and dimensions from seed."""
         self.mazegenerator = MazeGenerator(size=self.SIZE, seed=seed)
         self.maze: list[list[int]] = self.mazegenerator.maze
         self.width = self.SIZE[0]
@@ -15,6 +20,7 @@ class MazeAdapter:
         self.seed = seed
 
     def can_move(self, x: int, y: int, direction: Direction) -> bool:
+        """Check if movement in the given direction is open."""
         cell_value = self.maze[y][x]
 
         bin_str = f"{cell_value:04b}"
@@ -31,9 +37,11 @@ class MazeAdapter:
         return False
 
     def is_inside(self, x: int, y: int) -> bool:
+        """Check if coordinates are within maze bounds."""
         return 0 <= x < self.width and 0 <= y < self.height
 
     def get_neighbors(self, x: int, y: int) -> List[Tuple[int, int]]:
+        """Return accessible cardinal adjacent neighbor cells."""
         neighbors: List[Tuple[int, int]] = []
 
         if self.can_move(x, y, Direction.UP) and self.is_inside(x, y - 1):
@@ -48,17 +56,21 @@ class MazeAdapter:
         return neighbors
 
     def is_walkable(self, x: int, y: int) -> bool:
+        """Check if cell is traversable and not a solid obstacle."""
         return self.maze[y][x] != 15
 
     def create_random_maze(self) -> None:
+        """Generate a fresh random maze layout for new levels."""
         self.mazegenerator = MazeGenerator(size=self.SIZE)
         self.maze = self.mazegenerator.maze
 
     def reset(self) -> None:
+        """Reset maze back to the initial deterministic seed layout."""
         self.mazegenerator = MazeGenerator(size=self.SIZE, seed=self.seed)
         self.maze = self.mazegenerator.maze
 
     def get_random_cell(self) -> tuple[int, int]:
+        """Find and return a random walkable corridor coordinate."""
         while True:
             x = random.randrange(self.width)
             y = random.randrange(self.height)

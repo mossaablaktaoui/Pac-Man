@@ -1,3 +1,5 @@
+"""Maze rendering component drawing glowing walls to a cached surface."""
+
 import pygame
 
 from src.core.engine import GameEngine
@@ -7,7 +9,10 @@ MARGIN = 7
 
 
 class MazeRenderer:
-    def __init__(self, engine: GameEngine):
+    """Renders maze bitmask walls onto an off-screen surface."""
+
+    def __init__(self, engine: GameEngine) -> None:
+        """Initialize maze dimensions and pre-render cached surface."""
         self.engine = engine
         self.grid = self.engine.get_wall_matrix()
         self.maze_size = (
@@ -35,7 +40,6 @@ class MazeRenderer:
         """Draw a single maze cell on the target surface based on its bitmask.
 
         Args:
-            surface: The pygame Surface to draw onto.
             cell_value: 4-bit integer bitmask (1=N, 2=E, 4=S, 8=W, 15=solid).
             px: Top-left X coordinate in pixels.
             py: Top-left Y coordinate in pixels.
@@ -79,7 +83,7 @@ class MazeRenderer:
             pygame.draw.line(surface, (130, 200, 255), start, end, 2)
 
     def _render_maze(self) -> pygame.surface.Surface:
-        """Draw all walls onto the cached surface one time."""
+        """Draw all maze walls onto the surface and return it."""
         self.grid = self.engine.get_wall_matrix()
         self.maze_surface.fill((20, 40, 180, 80))
         for row_idx, row in enumerate(self.grid):
@@ -90,6 +94,5 @@ class MazeRenderer:
         return self.maze_surface
 
     def draw(self) -> pygame.Surface:
-        """Instantly return the pre-rendered surface
-        (runs at 60 FPS without lag)."""
+        """Re-render and return the current maze surface."""
         return self._render_maze()

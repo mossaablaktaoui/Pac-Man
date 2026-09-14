@@ -1,9 +1,14 @@
+"""Modal dialog for player name entry upon game completion."""
+
 import pygame
 from src.core.engine import GameEngine
 
 
 class ScrSaveScore:
+    """Manages player name entry text field and score submission."""
+
     def __init__(self, screen: pygame.Surface, engine: GameEngine) -> None:
+        """Initialize save score dialog and load board graphics."""
         self.screen = screen
         self.engine = engine
 
@@ -18,6 +23,7 @@ class ScrSaveScore:
         self._load_assets()
 
     def _load_assets(self) -> None:
+        """Load background modal board asset."""
         boards_dir = "assets/images/boards"
         self.board_img = pygame.image.load(
             f"{boards_dir}/save_score_board.png")
@@ -26,6 +32,7 @@ class ScrSaveScore:
         self.board_rect.center = (self.width // 2, self.height // 2)
 
     def draw_name_text(self) -> None:
+        """Render current input text and final score on the modal."""
         text_surf = self.font.render(self.user_text, True, (255, 255, 255))
         text_rect = text_surf.get_rect()
         text_rect.center = (int(self.width * 0.5), int(self.height * 0.52))
@@ -38,6 +45,7 @@ class ScrSaveScore:
         self.screen.blit(score_surf, score_rect)
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
+        """Process keyboard typing for player name and enter submission."""
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
                 self.user_text = self.user_text[:-1]
@@ -54,5 +62,6 @@ class ScrSaveScore:
         return None
 
     def draw(self) -> None:
+        """Render score saving modal and text prompt."""
         self.screen.blit(self.board_img, self.board_rect)
         self.draw_name_text()

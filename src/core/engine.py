@@ -1,3 +1,5 @@
+"""Core game engine coordinating logic, ticks, and entity states."""
+
 from typing import Any, List, Dict
 import random
 
@@ -16,9 +18,12 @@ from src.core.entities import (
 
 
 class GameEngine:
+    """Master game engine managing simulation ticks and rule logic."""
+
     MAX_LEVELS = 10
 
     def __init__(self) -> None:
+        """Initialize core engine components, maze, state, and cheats."""
         self.config = Config()
 
         self.maze = MazeAdapter(self.config.seed)
@@ -133,6 +138,7 @@ class GameEngine:
         self.dead_timer = 1.3
 
     def update(self, dt: float) -> None:
+        """Advance simulation physics, timers, collisions, and entities."""
         # stop simulation if the game is paused or over.
         if (self.gamestate.is_paused
                 or self.gamestate.is_game_over
@@ -143,7 +149,7 @@ class GameEngine:
         # dead timer
         if self.gamestate.pacman.state == "DEAD":
             self.dead_timer -= dt
-            
+
             if self.dead_timer <= 0.0:
                 self.gamestate.pacman.state = "ALIVE"
                 self._reset_positions()
@@ -215,6 +221,7 @@ class GameEngine:
         self.highscoresmanager.save_scores()
 
     def _move_pacman(self) -> None:
+        """Move Pac-Man along current or queued direction if passable."""
         pacman = self.gamestate.pacman
         pac_x = pacman.grid_x
         pac_y = pacman.grid_y
@@ -235,6 +242,7 @@ class GameEngine:
                 pacman.grid_x -= 1
 
     def _collect_pacgum(self) -> None:
+        """Check and consume pellets at Pac-Man's current position."""
         pacman = self.gamestate.pacman
         pacgums = self.gamestate.pacgums
         pac_x = pacman.grid_x
@@ -259,6 +267,7 @@ class GameEngine:
             self.gamestate.is_level_cleared = True
 
     def _check_ghost_collision(self) -> None:
+        """Evaluate collisions between Pac-Man and ghosts."""
 
         pacman = self.gamestate.pacman
 
@@ -289,6 +298,7 @@ class GameEngine:
                 return
 
     def _reset_positions(self) -> None:
+        """Reset Pac-Man and ghosts to their initial spawn positions."""
         pacman = self.gamestate.pacman
 
         pacman.grid_x = self.gamestate.grid_width // 2
@@ -310,6 +320,7 @@ class GameEngine:
         return
 
     def start_next_level(self) -> None:
+        """Advance to next procedural level or trigger victory."""
         if self.gamestate.level >= self.MAX_LEVELS:
             self.gamestate.is_level_cleared = False
             self.gamestate.is_victory = True
