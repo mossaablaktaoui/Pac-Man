@@ -87,7 +87,7 @@ class SrcInGame:
         frozen = self.screen.copy()
         self.blurred_surface = pygame.transform.box_blur(frozen, 8)
 
-    def _draw_ready(self, dt: float):
+    def _draw_ready(self, dt: float) -> None:
         if not self.blurred_surface:
             self._snapshot_blur()
         else:

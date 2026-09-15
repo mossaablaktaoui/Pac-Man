@@ -294,7 +294,7 @@ class GameEngine:
             if (ghost.grid_x == pacman.grid_x
                     and ghost.grid_y == pacman.grid_y):
 
-                if ghost.state == GhostState.EDIBLE:
+                if ghost.state in (GhostState.EDIBLE, GhostState.FLASHING):
                     self.gamestate.score += self.config.points_per_ghost
                     ghost.state = GhostState.EATEN
                     self.ghost_manager.eaten_timers[ghost.id] = 5.0
@@ -357,6 +357,10 @@ class GameEngine:
         self.gamestate.lives = old_lives
         self.gamestate.level = next_level
         self.gamestate.active_cheats = old_cheats
+        self.gamestate.time_remaining = max(
+            60,
+            self.config.level_max_time - (next_level - 1) * 5,
+        )
 
         self.cheats.gamestate = self.gamestate
         self.next_direction = self.gamestate.pacman.direction

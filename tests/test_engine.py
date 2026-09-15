@@ -150,6 +150,20 @@ class TestEngine(unittest.TestCase):
         )
         self.assertEqual(ghost.state, GhostState.EATEN)
 
+    def test_ghost_collision_flashing_devours_ghost(self) -> None:
+        pacman = self.engine.gamestate.pacman
+        ghost = self.engine.gamestate.ghosts[0]
+        ghost.state = GhostState.FLASHING
+        ghost.grid_x = pacman.grid_x
+        ghost.grid_y = pacman.grid_y
+
+        initial_score = self.engine.gamestate.score
+        self.engine._check_ghost_collision()
+        self.assertEqual(
+            self.engine.gamestate.score, initial_score + 200
+        )
+        self.assertEqual(ghost.state, GhostState.EATEN)
+
     def test_timer_countdown_triggers_game_over(self) -> None:
         self.engine.gamestate.time_remaining = 0.5
         self.engine.update(dt=1.0)

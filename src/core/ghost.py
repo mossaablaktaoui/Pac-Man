@@ -31,10 +31,14 @@ class GhostManager:
 
             if self.edible_timer <= 3:
                 for ghost in gamestate.ghosts:
-                    if (ghost.state != GhostState.EATEN 
+                    if (ghost.state != GhostState.EATEN
                             and ghost.state != GhostState.NORMAL):
 
-                        ghost.state = GhostState.FLASHING
+                        if int(self.edible_timer * 4) % 2 == 0:
+                            ghost.state = GhostState.FLASHING
+                        else:
+                            ghost.state = GhostState.EDIBLE
+
             if self.edible_timer <= 0:
                 for ghost in gamestate.ghosts:
                     if ghost.state != GhostState.EATEN:
@@ -59,7 +63,7 @@ class GhostManager:
         self.move_timer += dt
         self.edible_move_timer += dt
 
-        if self.move_timer >= 0.4:
+        if self.move_timer >= max(0.18, 0.4 - (gamestate.level - 1) * 0.02):
             for ghost in gamestate.ghosts:
                 if ghost.state in (GhostState.NORMAL, GhostState.EATEN):
                     self._move_ghost(ghost, gamestate)
@@ -163,7 +167,9 @@ class GhostManager:
 
     def make_edible(self, gamestate: GameStateDT) -> None:
         """Transition all active ghosts into edible frightened state."""
-        self.edible_timer = 8.0
+        self.edible_timer = max(
+            3.0, 8.0 - (gamestate.level - 1) * 0.5
+        )
 
         for ghost in gamestate.ghosts:
             if ghost.state != GhostState.EATEN:
