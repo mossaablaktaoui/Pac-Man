@@ -1,5 +1,7 @@
 """Application launcher and game execution runner."""
 
+import sys
+
 from src.views.renderer import Renderer
 
 
@@ -8,5 +10,6 @@ def run_game() -> None:
     try:
         renderer = Renderer()
         renderer.run()
-    except Exception as e:
-        print(e)
+    except Exception as error:
+        print(f"Error: {error}")
+        sys.exit(1)

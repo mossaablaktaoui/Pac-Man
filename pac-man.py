@@ -4,7 +4,4 @@ from src.app import run_game
 
 
 if __name__ == "__main__":
-    try:
-        run_game()
-    except Exception as e:
-        print(e)
+    run_game()
