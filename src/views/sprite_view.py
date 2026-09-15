@@ -181,10 +181,11 @@ class SpriteView:
         """Render all active pellets, Pac-Man, and ghost entities."""
         """Render pellets, Pac-Man, and ghosts
         at the dynamic maze screen offsets."""
-        self.update_animations(dt)
-        self._draw_pacgums(state)
-        self._draw_ghosts(state.ghosts, dt)
-        self._draw_pacman(state.pacman, dt)
+        if True:
+            self.update_animations(dt)
+            self._draw_pacgums(state)
+            self._draw_ghosts(state.ghosts, dt)
+            self._draw_pacman(state.pacman, dt)
 
     def _draw_pacgums(self, state: GameStateDT) -> None:
         """Draw collectible standard pellets and energized super-pacgums."""

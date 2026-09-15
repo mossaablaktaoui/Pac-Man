@@ -38,7 +38,11 @@ class SrcInGame:
         self.sprite_view = SpriteView(
             self.screen, self.engine, self.maze_xoffset, self.maze_yoffset)
 
-        self._snapshot_blur()
+        self.overlay = pygame.Surface(
+            (self.width, self.height), pygame.SRCALPHA
+        )
+        self.overlay.fill((0, 0, 0, 140))
+        self.blurred_surface: pygame.Surface | None = None
 
     def handle_event(self, event: pygame.event.Event) -> str | None:
         """Forward events to HUD or process gameplay keys."""
@@ -51,6 +55,7 @@ class SrcInGame:
                 action = "pause"
             if event.key == pygame.K_r:
                 self.engine.start_new_game()
+                self.reset_ready()
                 action = "replay"
             if event.key == pygame.K_q:
                 action = "menu"
@@ -75,16 +80,27 @@ class SrcInGame:
 
     def reset_ready(self) -> None:
         """Reset countdown for game start or new levels."""
-        self.ready_timer = 4.0
+        self.ready_timer = 5.0
 
     def _snapshot_blur(self) -> None:
         """Capture the current frame and apply box blur."""
         frozen = self.screen.copy()
         self.blurred_surface = pygame.transform.box_blur(frozen, 8)
-        self.overlay = pygame.Surface(
-                (self.width, self.height), pygame.SRCALPHA
-        )
-        self.overlay.fill((0, 0, 0, 140))
+
+    def _draw_ready(self, dt: float):
+        if not self.blurred_surface:
+            self._snapshot_blur()
+        else:
+            self.screen.blit(self.blurred_surface, (0, 0))
+            self.screen.blit(self.overlay)
+        self.ready_timer -= dt
+        text = (f"LEVEL {self.engine.gamestate.level}"
+                if self.ready_timer > 4 else str(int(self.ready_timer))
+                if self.ready_timer > 1 else "READY!")
+        ready_text = self.font.render(text, True, (255, 255, 255))
+        ready_rect = ready_text.get_rect()
+        ready_rect.center = [self.width // 2, self.height // 2]
+        self.screen.blit(ready_text, ready_rect)
 
     def draw(self, dt: float) -> None:
         """Render the maze, HUD, entity sprites, and ready banner."""
@@ -103,13 +119,4 @@ class SrcInGame:
         self.sprite_view.draw(self.engine.gamestate, dt)
 
         if self.ready_timer > 0:
-            self.screen.blit(self.blurred_surface, (0, 0))
-            self.screen.blit(self.overlay)
-            self.ready_timer -= dt
-            text = (f"LEVEL {self.engine.gamestate.level}"
-                    if self.ready_timer > 4 else str(int(self.ready_timer))
-                    if self.ready_timer > 1 else "READY!")
-            ready_text = self.font.render(text, True, (255, 255, 255))
-            ready_rect = ready_text.get_rect()
-            ready_rect.center = [self.width // 2, self.height // 2]
-            self.screen.blit(ready_text, ready_rect)
+            self._draw_ready(dt)

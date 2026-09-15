@@ -75,7 +75,7 @@ The objective is to build a complete, playable, robust **Pac-Man** arcade game i
 3. **Double `pygame.display.flip()` and Event Conflicts:**
    `Renderer.run()` has an outer event loop and calls `flip()`, while sub-screens (`MainMenu.run()`, `InGame.run()`) also call `pygame.event.get()` and `flip()`. This causes dropped keyboard inputs, black flickers, and unresponsive windows.
 4. **Forced Fullscreen & Unresponsive Display:**
-   Forcing `pygame.FULLSCREEN` freezes window managers or fails in dual-screen / evaluation setups. A windowed 1280x720 display with dynamic scaling is required.
+   Forcing `pygame.FULLSCREEN` freezes window managers or fails in dual-screen / evaluation setups. A windowed 1920x1080 display with dynamic scaling is required.
 5. **CLI & Specification Non-Compliance:**
    `pac-man.py` does not take `sys.argv[1]`, does not pass parsed configuration to the game engine, and does not catch exceptions to prevent Python tracebacks.
 6. **Missing Evaluation Features:**
@@ -409,7 +409,7 @@ class IGameEngine:
 
 | Phase | Person A (Front-end / Presentation) | Person B (Back-end / Logic Core) | Joint Verification Milestone |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | • Refactor `src/renderer.py` into windowed 1280x720 display with 60 FPS clock.<br>• Unify event loop into single `pygame.event.get()`.<br>• Remove `crosshair.py` and extraneous assets. | • Rewrite `src/parser.py` (comment stripping, default clamping, validation logging).<br>• Wire `pac-man.py` with `sys.argv[1]` and traceback-free error handling. | **M1:** `python3 pac-man.py config.json` starts a clean window with settings from config. |
+| **Phase 1** | • Refactor `src/renderer.py` into windowed 1920x1080 display with 60 FPS clock.<br>• Unify event loop into single `pygame.event.get()`.<br>• Remove `crosshair.py` and extraneous assets. | • Rewrite `src/parser.py` (comment stripping, default clamping, validation logging).<br>• Wire `pac-man.py` with `sys.argv[1]` and traceback-free error handling. | **M1:** `python3 pac-man.py config.json` starts a clean window with settings from config. |
 | **Phase 2** | • Update `maze_renderer.py` to render variable grid sizes dynamically.<br>• Implement `grid_to_pixel()` coordinate mapping and sub-tile interpolation. | • Fix `src/maze.py`: correct `[y][x]` indexing, invert bitmask checks, add `perfect=False`.<br>• Write unit tests verifying corridor traversability and boundaries. | **M2:** Real maze from `A-Maze-ing` package renders accurately on screen with open corridor loops. |
 | **Phase 3** | • Build `src/views/sprite_view.py` for animated directional Pac-Man sprites.<br>• Capture WASD/Arrow keys in main event loop and forward to engine. | • Implement `Player` entity logic and queued direction turning in `src/core/engine.py`.<br>• Implement Pacgum and Super-pacgum grid placement and consumption logic. | **M3:** Player controls Pac-Man through corridors, eating pellets, updating score in real-time. |
 | **Phase 4** | • Add rendering for 4 distinct ghost colors, frightened flashing state, and eaten eyes state.<br>• Integrate audio triggers for chomp, ghost eaten, and death. | • Implement `GhostAI` with BFS corridor navigation.<br>• Implement 3-state machine (`CHASE`, `EDIBLE`, `EATEN`).<br>• Implement touch collision and respawn timer. | **M4:** Playable game with full ghost chase, power pellet vulnerability, and respawning. |
@@ -499,6 +499,6 @@ mock_state = GameStateDTO(
 3. **Decouple Entities in `src/models/`:**
    - Make `Player`, `Ghost`, and `Pacgum` pure Python dataclasses.
 4. **Refactor Main Loop in `src/renderer.py`:**
-   - Replace fullscreen with a 1280x720 window; centralize `clock.tick(60)` and `pygame.display.flip()`.
+   - Replace fullscreen with a 1920x1080 window; centralize `clock.tick(60)` and `pygame.display.flip()`.
 5. **Initialize Project Management Folder:**
 
