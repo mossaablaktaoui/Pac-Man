@@ -10,6 +10,8 @@ def run_game() -> None:
     try:
         renderer = Renderer()
         renderer.run()
+    except KeyboardInterrupt:
+        print("bye")
     except Exception as error:
         print(f"Error: {error}")
         sys.exit(1)

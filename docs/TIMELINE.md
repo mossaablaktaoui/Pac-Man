@@ -76,19 +76,10 @@ Linting  ═══════════════════════�
   - **Smooth Movement & Ready Intermission Screen**: Tuned sub-tile interpolation and added a 4-second "Level X / Ready!" banner countdown (`commit 3694c06`).
   - **Highscore Board & Name Input**: Built the 10-character alphanumeric name-saving input dialog and leaderboard display with score preservation (`commit 88f8b07`, `aca89ed`, `288185c`).
 
-### Day 8 (Today): Final Logic Refinements, Test Suite & Documentation
+### Day 8: Final Logic Refinements, Test Suite & Documentation
 
 - **Current Status**:
   - Fine-tuning remaining subtle logic edge cases in entity behaviors.
   - Comprehensive automated unit test suite in `tests/` (39 passing unit tests covering config, highscores, maze adapter, and engine rules).
   - Project documentation finalized (`docs/` and `README.md`).
   - Verification with `make test` and `make lint`.
-
----
-
-## Quality Control: Continuous Linting Strategy
-
-Unlike traditional workflows where code formatting is delayed until the end:
-
-- **Continuous Linting**: Both developers ran `flake8` and `mypy` continuously during daily coding sessions and before feature merges (`commit 4e7eb8b`, `ccd05f2`).
-- **Clean Type Annotations**: Maintained clean PEP 484 type hints across all source and test modules throughout development.
