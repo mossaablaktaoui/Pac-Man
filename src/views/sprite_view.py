@@ -183,9 +183,9 @@ class SpriteView:
         at the dynamic maze screen offsets."""
         if not self.engine.level_cleared:
             self.update_animations(dt)
-            self._draw_pacgums(state)
-            self._draw_ghosts(state.ghosts, dt)
-            self._draw_pacman(state.pacman, dt)
+        self._draw_pacgums(state)
+        self._draw_ghosts(state.ghosts, dt)
+        self._draw_pacman(state.pacman, dt)
 
     def _draw_pacgums(self, state: GameStateDT) -> None:
         """Draw collectible standard pellets and energized super-pacgums."""
