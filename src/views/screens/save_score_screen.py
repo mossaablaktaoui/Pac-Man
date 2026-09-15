@@ -56,7 +56,9 @@ class ScrSaveScore:
                         return "victory"
                     return "gameover"
 
-            elif len(self.user_text) < 10 and event.unicode.isalnum():
+            elif len(self.user_text) < 10 and (
+                    event.unicode.isalnum() or event.unicode == " "
+            ):
                 self.user_text += event.unicode
 
         return None

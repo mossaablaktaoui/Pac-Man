@@ -36,7 +36,7 @@ class GameEngine:
         self.ghost_manager = GhostManager(self.maze)
 
         self.dead_timer = 1.3
-        self.level_clear_timer = 1.0
+        self.level_clear_timer = 2.0
 
         self.level_cleared = False
 
@@ -139,7 +139,8 @@ class GameEngine:
 
         self.ghost_manager.reset(self.maze)
         self.dead_timer = 1.3
-        self.level_clear_timer = 1.0
+        self.level_clear_timer = 2.0
+        self.level_cleared = False
 
     def update(self, dt: float) -> None:
         """Advance simulation physics, timers, collisions, and entities."""
@@ -154,7 +155,6 @@ class GameEngine:
 
             if self.level_clear_timer <= 0.0:
                 self.start_next_level()
-                self.gamestate.is_level_cleared = True
                 self.level_cleared = False
 
             return
@@ -192,7 +192,7 @@ class GameEngine:
                     or self.gamestate.pacman.state == "DEAD"):
                 return
 
-            if self.gamestate.is_level_cleared:
+            if self.gamestate.is_level_cleared and not self.level_cleared:
                 self.start_next_level()
                 return
 
@@ -283,6 +283,7 @@ class GameEngine:
 
         if not pacgums:
             self.level_cleared = True
+            self.gamestate.is_level_cleared = True
 
     def _check_ghost_collision(self) -> None:
         """Evaluate collisions between Pac-Man and ghosts."""
@@ -346,6 +347,7 @@ class GameEngine:
 
         old_score = self.gamestate.score
         old_lives = self.gamestate.lives
+        old_cheats = self.gamestate.active_cheats
         next_level = self.gamestate.level + 1
 
         self.maze.create_random_maze()
@@ -354,6 +356,7 @@ class GameEngine:
         self.gamestate.score = old_score
         self.gamestate.lives = old_lives
         self.gamestate.level = next_level
+        self.gamestate.active_cheats = old_cheats
 
         self.cheats.gamestate = self.gamestate
         self.next_direction = self.gamestate.pacman.direction
@@ -364,6 +367,6 @@ class GameEngine:
         self._reset_positions()
 
         self.dead_timer = 1.3
-        self.level_clear_timer = 1.0
+        self.level_clear_timer = 2.0
 
         return

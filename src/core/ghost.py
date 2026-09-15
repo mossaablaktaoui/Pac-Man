@@ -29,6 +29,12 @@ class GhostManager:
         if self.edible_timer > 0:
             self.edible_timer -= dt
 
+            if self.edible_timer <= 3:
+                for ghost in gamestate.ghosts:
+                    if (ghost.state != GhostState.EATEN 
+                            and ghost.state != GhostState.NORMAL):
+
+                        ghost.state = GhostState.FLASHING
             if self.edible_timer <= 0:
                 for ghost in gamestate.ghosts:
                     if ghost.state != GhostState.EATEN:
@@ -62,7 +68,7 @@ class GhostManager:
 
         if self.edible_move_timer >= 0.7:
             for ghost in gamestate.ghosts:
-                if ghost.state == GhostState.EDIBLE:
+                if ghost.state in (GhostState.EDIBLE, GhostState.FLASHING):
                     self._move_ghost(ghost, gamestate)
 
             self.edible_move_timer = 0.0
@@ -95,7 +101,7 @@ class GhostManager:
             target = self._get_spawn_position(ghost)
             next_cell = self._bfs_next_step(start, target)
 
-        elif ghost.state == GhostState.EDIBLE:
+        elif ghost.state in (GhostState.EDIBLE, GhostState.FLASHING):
             target = self._get_flee_target(ghost, gamestate)
             next_cell = self._bfs_next_step(start, target)
 
@@ -222,7 +228,7 @@ class GhostManager:
         return random.choice(neighbors)
 
     def _get_predicted_cell(self, gamestate: GameStateDT,
-                            start: Tuple[int, int]) -> Tuple[int, int]:
+                            start: Tuple[int, int]) -> Tuple[int, int] | None:
         """Return a cell up to 5 steps ahead of Pac-Man."""
         pacman = gamestate.pacman
 
