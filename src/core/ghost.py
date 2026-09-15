@@ -4,6 +4,7 @@ from src.core.maze_adapter import MazeAdapter
 from src.core.entities import GameStateDT, SpriteDT, Direction, GhostState
 from collections import deque
 import random
+from typing import Tuple, Dict
 
 
 class GhostManager:
@@ -68,7 +69,7 @@ class GhostManager:
 
         return
 
-    def _get_spawn_position(self, ghost: SpriteDT) -> tuple[int, int]:
+    def _get_spawn_position(self, ghost: SpriteDT) -> Tuple[int, int]:
         """Return home spawn corner coordinates for a ghost."""
         width = self.maze.width
         height = self.maze.height
@@ -105,24 +106,26 @@ class GhostManager:
                 target = (pacman.grid_x, pacman.grid_y)
                 next_cell = self._bfs_next_step(start, target)
 
-            elif ghost.id == "pinky" or ghost.id == "clyde":
+            elif ghost.id == "pinky":
                 next_cell = self._random_next_step(ghost)
 
-            else:  # "inky"
-                target = self._get_predicted_target(gamestate)
-                next_cell = self._bfs_next_step(start, target)
+            elif ghost.id == "inky":
+                next_cell = self._get_predicted_cell(gamestate, start)
+
+            else:  # "clyde"
+                algorithms = ["bfs", "random", "prediction"]
+
+                algorithm = random.choice(algorithms)
+                if algorithm == "bfs":
+                    target = (pacman.grid_x, pacman.grid_y)
+                    next_cell = self._bfs_next_step(start, target)
+                elif algorithm == "random":
+                    next_cell = self._random_next_step(ghost)
+                elif algorithm == "prediction":
+                    next_cell = self._get_predicted_cell(gamestate, start)
 
         if next_cell is None:
             return
-
-        for other in gamestate.ghosts:
-            if other is ghost:
-                continue
-
-            if (ghost.state != GhostState.EATEN
-                    and other.state != GhostState.EATEN
-                    and (other.grid_x, other.grid_y) == next_cell):
-                return
 
         next_x, next_y = next_cell
 
@@ -160,12 +163,12 @@ class GhostManager:
             if ghost.state != GhostState.EATEN:
                 ghost.state = GhostState.EDIBLE
 
-    def _bfs_next_step(self, start: tuple[int, int],
-                       target: tuple[int, int]) -> tuple[int, int] | None:
+    def _bfs_next_step(self, start: Tuple[int, int],
+                       target: Tuple[int, int]) -> Tuple[int, int] | None:
         """Return the next cell toward the target using BFS."""
         queue = deque([start])
         visited = {start}
-        parent: dict[tuple[int, int], tuple[int, int]] = {}
+        parent: Dict[Tuple[int, int], Tuple[int, int]] = {}
 
         while queue:
             current = queue.popleft()
@@ -196,7 +199,7 @@ class GhostManager:
 
         return current
 
-    def _random_next_step(self, ghost: SpriteDT) -> tuple[int, int] | None:
+    def _random_next_step(self, ghost: SpriteDT) -> Tuple[int, int] | None:
         """Move forward, choose randomly when blocked."""
         x = ghost.grid_x
         y = ghost.grid_y
@@ -218,15 +221,15 @@ class GhostManager:
 
         return random.choice(neighbors)
 
-    def _get_predicted_target(self,
-                              gamestate: GameStateDT,) -> tuple[int, int]:
-        """Return a cell up to 20 steps ahead of Pac-Man."""
+    def _get_predicted_cell(self, gamestate: GameStateDT,
+                            start: Tuple[int, int]) -> Tuple[int, int]:
+        """Return a cell up to 5 steps ahead of Pac-Man."""
         pacman = gamestate.pacman
 
         x = pacman.grid_x
         y = pacman.grid_y
 
-        for _ in range(20):
+        for _ in range(5):
             if not self.maze.can_move(x, y, pacman.direction):
                 break
 
@@ -239,7 +242,9 @@ class GhostManager:
             elif pacman.direction == Direction.RIGHT:
                 x += 1
 
-        return x, y
+        target = x, y
+        next_cell = self._bfs_next_step(start, target)
+        return next_cell
 
     def reset(self, maze: MazeAdapter) -> None:
         """Reset ghost timers and maze reference for a new level."""
@@ -247,9 +252,11 @@ class GhostManager:
         self.move_timer = 0.0
         self.edible_timer = 0.0
         self.edible_move_timer = 0.0
+        for ghost_id in self.eaten_timers:
+            self.eaten_timers[ghost_id] = 0.0
 
     def _get_flee_target(self, ghost: SpriteDT,
-                         gamestate: GameStateDT,) -> tuple[int, int]:
+                         gamestate: GameStateDT,) -> Tuple[int, int]:
         """Return target cell maximizing Manhattan distance to Pac-Man."""
         pacman = gamestate.pacman
 

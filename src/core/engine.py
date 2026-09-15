@@ -36,6 +36,9 @@ class GameEngine:
         self.ghost_manager = GhostManager(self.maze)
 
         self.dead_timer = 1.3
+        self.level_clear_timer = 1.0
+
+        self.level_cleared = False
 
     def setup_game_state(self) -> GameStateDT:
         """Create the initial game state."""
@@ -136,14 +139,24 @@ class GameEngine:
 
         self.ghost_manager.reset(self.maze)
         self.dead_timer = 1.3
+        self.level_clear_timer = 1.0
 
     def update(self, dt: float) -> None:
         """Advance simulation physics, timers, collisions, and entities."""
         # stop simulation if the game is paused or over.
         if (self.gamestate.is_paused
                 or self.gamestate.is_game_over
-                or self.gamestate.is_victory
-                or self.gamestate.is_level_cleared):
+                or self.gamestate.is_victory):
+            return
+
+        if self.level_cleared:
+            self.level_clear_timer -= dt
+
+            if self.level_clear_timer <= 0.0:
+                self.start_next_level()
+                self.gamestate.is_level_cleared = True
+                self.level_cleared = False
+
             return
 
         # dead timer
@@ -175,13 +188,18 @@ class GameEngine:
             self._collect_pacgum()
             self._check_ghost_collision()
 
+            if (self.gamestate.is_game_over
+                    or self.gamestate.pacman.state == "DEAD"):
+                return
+
+            if self.gamestate.is_level_cleared:
+                self.start_next_level()
+                return
+
         # update ghosts state while they are not freezed.
         if not self.cheats.is_active(CheatCode.FREEZE_GHOSTS):
             self.ghost_manager.update(self.gamestate, dt)
-
-        # Go to next level when is cleared
-        if self.gamestate.is_level_cleared:
-            self.start_next_level()
+            self._check_ghost_collision()
 
     def set_player_direction(self, direction: Direction) -> None:
         """Queue the next intended direction for Pac-Man."""
@@ -264,7 +282,7 @@ class GameEngine:
                 break
 
         if not pacgums:
-            self.gamestate.is_level_cleared = True
+            self.level_cleared = True
 
     def _check_ghost_collision(self) -> None:
         """Evaluate collisions between Pac-Man and ghosts."""
@@ -346,5 +364,6 @@ class GameEngine:
         self._reset_positions()
 
         self.dead_timer = 1.3
+        self.level_clear_timer = 1.0
 
         return
