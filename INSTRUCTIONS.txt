@@ -9,6 +9,10 @@ To launch the game on Linux, open a terminal in this directory and execute:
 
     ./pac-man config.json
 
+    or 
+
+    ./run.sh
+
 Make sure the executable has execution permissions:
     chmod +x pac-man
 

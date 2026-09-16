@@ -8,11 +8,11 @@ run:
 debug:
 	python -m pdb pac-man.py config.json
 
-test:
-	uv run python -m unittest discover -s tests -v
-
 clean:
 	rm -rf *.pyc __pycache__ .mypy_cache
+
+fclean: clean
+	rm -fr build dist .venv highscores.json
 
 lint:
 	uv run flake8 .
@@ -37,7 +37,5 @@ package:
 	cp INSTRUCTIONS.txt dist/
 	chmod +x dist/pac-man dist/run.sh
 	@echo "==> Creating release zip..."
-	cd dist && zip -q -r pac-man-release.zip pac-man run.sh config.json instruction.txt
+	cd dist && zip -q -r pac-man-release.zip pac-man run.sh config.json INSTRUCTIONS.txt
 	@echo "==> Package ready: dist/pac-man-release.zip"
-
-.PHONY: install run debug test clean lint lint-strict

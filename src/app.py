@@ -13,5 +13,5 @@ def run_game() -> None:
     except KeyboardInterrupt:
         print("bye")
     except Exception as error:
-        print(f"Error: {error}")
+        print(f"\033[91mError: {error}\033[0m")
         sys.exit(1)

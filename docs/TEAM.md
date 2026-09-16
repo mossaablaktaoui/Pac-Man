@@ -8,10 +8,10 @@ Comprehensive team charter, architectural division of responsibilities, contract
 
 The project was engineered collaboratively by two developers adhering to an **Agile pair-programming framework** and strict domain separation:
 
-| Developer | Handle | Primary Role | Domain Ownership |
+| Developer | Login | Primary Role | Domain Ownership |
 | :--- | :--- | :--- | :--- |
-| **Abdelfatah Laktaoui** | `alaktaou` | **Front-End & Presentation Lead** (Person A) | Pygame display window, 60 FPS clock, screen state machine, sprite animations, sub-tile interpolation, HUD rendering, modal blur shaders, and packaging. |
-| **Mossaab Laktaoui** | `mlaktaou` | **Back-End & Core Logic Lead** (Person B) | Pure Python simulation engine, A-Maze-ing maze adapter, BFS ghost AI pathfinding, collision detection, config parser, highscores persistence, and automated unit tests. |
+| **Abdelfatah Laktaoui** | `alaktaou` | **Front-End & Presentation Lead** | Pygame display window, screen state machine, sprite animations, HUD rendering, and packaging. |
+| **Mossaab Laktaoui** | `mlaktaou` | **Back-End & Core Logic Lead** | Pure Python simulation engine, A-Maze-ing maze adapter, BFS ghost pathfinder, collision detection, config parser, and highscores manager. |
 
 ---
 
