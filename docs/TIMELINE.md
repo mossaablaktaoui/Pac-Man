@@ -7,7 +7,7 @@ The actual 8-day development timeline executed collaboratively by **Abdelfatah L
 ## Gantt / Real Schedule Overview
 
 ```
-Day:       1       2       3       4       5       6       7       8 (Today)
+Day:         1       2       3       4       5       6       7       8
          ┌───────┬───────┬───────┬───────┬───────┬───────┬───────┬───────┐
 M1       ████████                                                        │ M1: Env & Foundation (Day 1)
 M2       ████████████████                                                │ M2: Maze Logic & Adapter (Days 1–2)

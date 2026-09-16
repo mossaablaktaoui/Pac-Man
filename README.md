@@ -1,4 +1,4 @@
-_This project was created as part of the 42 curriculum by alaktaou and mlaktaou._
+_This project was created as part of the 42 curriculum by mlaktaou and alaktaou._
 
 # Pac-Man: Ghosts! More Ghosts!
 
@@ -30,7 +30,7 @@ Instead of a fixed board, the game generates procedural 15x15 mazes for each lev
 ```bash
 # Clone and enter repository
 git clone <repository_url>
-cd Pac-man
+cd Pac-Man
 
 # Install dependencies and the A-Maze-ing wheel
 make install
@@ -63,7 +63,7 @@ python3 pac-man.py config.json
 
 ## 3. Resources & AI Usage
 
-- **References**: Classic Pac-Man dossier and official Pygame-ce documentation.
+- **References**: Classic Pac-Man dossier and official Pygame-ce documentation (YouTube/Stack Overflow).
 - **AI Disclosure**: Used AI tools for debugging, code review, structuring documentation, and Pygame animation techniques.
 
 ---

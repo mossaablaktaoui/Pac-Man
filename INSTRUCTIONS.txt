@@ -67,6 +67,6 @@ Player names support up to 10 alphanumeric characters.
 - Watch out for 4 distinct ghost AI behaviors:
     * Blinky (Red)   : Direct BFS shortest-path hunter
     * Pinky (Pink)   : Wandering explorer
-    * Inky (Cyan)    : Interceptor projecting 20 tiles ahead
-    * Clyde (Orange) : Wandering explorer
+    * Inky (Cyan)    : Interceptor projecting 5 tiles ahead
+    * Clyde (Orange) : Take a random algorithm from the previous
 ================================================================================

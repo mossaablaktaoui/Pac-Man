@@ -27,15 +27,18 @@ lint-strict:
 package:
 	@echo "==> Building standalone executable..."
 	uv run pyinstaller --clean pac-man.spec
-	@echo "==> Generating run.sh on the fly..."
-	@echo '#!/bin/bash' > dist/run.sh
-	@echo 'DIR="$$(cd "$$(dirname "$$0")" && pwd)"' >> dist/run.sh
-	@echo 'chmod +x "$$DIR/pac-man"' >> dist/run.sh
-	@echo 'exec "$$DIR/pac-man" "$$DIR/config.json" "$$@"' >> dist/run.sh
-	@echo "==> Copying config and instructions..."
-	cp config.json dist/
-	cp INSTRUCTIONS.txt dist/
-	chmod +x dist/pac-man dist/run.sh
+	@rm -fr build
+
+zip: package
 	@echo "==> Creating release zip..."
-	cd dist && zip -q -r pac-man-release.zip pac-man run.sh config.json INSTRUCTIONS.txt
-	@echo "==> Package ready: dist/pac-man-release.zip"
+	@rm -rf zip_package pac-man-release.zip
+	@mkdir -p zip_package
+	@cp config.json INSTRUCTIONS.txt dist/pac-man zip_package/
+	@echo '#!/bin/bash' > zip_package/run.sh
+	@echo 'DIR="$$(cd "$$(dirname "$$0")" && pwd)"' >> zip_package/run.sh
+	@echo 'chmod +x "$$DIR/pac-man"' >> zip_package/run.sh
+	@echo 'exec "$$DIR/pac-man" "$$DIR/config.json" "$$@"' >> zip_package/run.sh
+	@chmod +x zip_package/pac-man zip_package/run.sh
+	@cd zip_package && zip -q -r ../pac-man-release.zip pac-man run.sh config.json INSTRUCTIONS.txt
+	@rm -rf zip_package
+	@echo "==> Package ready: pac-man-release.zip"
