@@ -11,6 +11,12 @@ An arcade-accurate recreation of **Pac-Man** featuring procedural maze generatio
 
 ---
 
+## 0. Demo
+
+<video src="https://github.com/user-attachments/assets/17ab092f-c184-4385-8554-c41498e08504" width="100%" controls></video>
+
+---
+
 ## 1. Description
 
 This project recreates the classic arcade game **Pac-Man** using **Python 3.10+** and **Pygame-ce**. 
